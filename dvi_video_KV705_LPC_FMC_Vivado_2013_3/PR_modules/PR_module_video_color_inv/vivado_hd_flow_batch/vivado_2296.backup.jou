@@ -1,0 +1,11 @@
+#-----------------------------------------------------------
+# Vivado v2013.3 (64-bit)
+# SW Build 329390 on Wed Oct 16 18:26:55 MDT 2013
+# IP Build 192953 on Wed Oct 16 08:44:02 MDT 2013
+# Start of session at: Tue Dec  3 10:58:06 2013
+# Process ID: 25329
+# Log file: /home/sanjayr/projects/KC705/git_test/HD_flow_vivado/dvi_video_KV705_LPC_FMC_Vivado_2013_3/PR_modules/PR_module_A_video_color_inv/vivado_hd_flow_batch/vivado.log
+# Journal file: /home/sanjayr/projects/KC705/git_test/HD_flow_vivado/dvi_video_KV705_LPC_FMC_Vivado_2013_3/PR_modules/PR_module_A_video_color_inv/vivado_hd_flow_batch/vivado.jou
+#-----------------------------------------------------------
+start_gui
+source vivado_batch.tcl
