@@ -4,7 +4,7 @@ set DEVICE xc7k325tffg900-2
 create_project project_X project_X -part $DEVICE
 
 add_files -verbose {
-../PR_modules/PR_module_A_video_bypass/src/video_filter_PR.vhd
+../PR_modules/PR_module_video_bypass/src/video_filter_PR.vhd
 ../src/window.vhd
 ../src/fmc_dvidp_dvi_in.v
 ../src/fmc_dvidp_dvi_out.v
