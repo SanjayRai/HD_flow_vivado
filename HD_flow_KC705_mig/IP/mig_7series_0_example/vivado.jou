@@ -1,0 +1,11 @@
+#-----------------------------------------------------------
+# Vivado v2013.3 (64-bit)
+# SW Build 329390 on Wed Oct 16 18:26:55 MDT 2013
+# IP Build 192953 on Wed Oct 16 08:44:02 MDT 2013
+# Start of session at: Thu Dec  5 10:54:40 2013
+# Process ID: 3195
+# Log file: /home/sanjayr/projects/KC705/HD_flow_KC705_mig/IP/mig_7series_0_example/vivado.log
+# Journal file: /home/sanjayr/projects/KC705/HD_flow_KC705_mig/IP/mig_7series_0_example/vivado.jou
+#-----------------------------------------------------------
+start_gui
+source /home/sanjayr/projects/KC705/HD_flow_KC705_mig/vivado/project_1/project_1.srcs/sources_1/ip/mig_7series_0/mig_7series_0_ex.tcl

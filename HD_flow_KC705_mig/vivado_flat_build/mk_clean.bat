@@ -1,0 +1,11 @@
+rm -rf .Xil/
+rm -rf fsm_encoding.os
+rm -rf .ngc2edfcache/
+rm -rf *_drc_methodology_checks.rpt
+rm -rf *_drc_timing_checks.rpt
+rm -rf *.bit
+rm -rf *.timing_rpt
+rm -rf *.timing_summary_rpt
+rm -rf planAhead.ngc2edif.log
+rm -rf vivado.jou
+rm -rf vivado.log
