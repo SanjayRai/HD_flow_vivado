@@ -18,7 +18,8 @@ read_xdc -verbose ../src/xdc/example_top_HD.xdc
 
 synth_design -top example_top -fanout_limit 100000 -part $DEVICE
 
-read_checkpoint -cell u_mig_7series_ip_top ../vivado_HD_MIG_ONLY_build/u_mig_7series_ip_top_route_design.dcp
+read_checkpoint -cell u_mig_7series_ip_top ../vivado_MIG_only_HD_build/u_mig_7series_ip_top_route_design.dcp
+
 lock_design -level routing u_mig_7series_ip_top
 #lock_design -level placement u_mig_7series_ip_top
 set_property EXCLUDE_PLACEMENT 1 [get_pblocks ]
