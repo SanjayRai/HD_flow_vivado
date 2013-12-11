@@ -146,8 +146,10 @@ resize_pblock [get_pblocks pblock_U_PR_A] -add {SLICE_X36Y50:SLICE_X79Y99}
 resize_pblock [get_pblocks pblock_U_PR_A] -add {DSP48_X2Y20:DSP48_X2Y39}
 resize_pblock [get_pblocks pblock_U_PR_A] -add {RAMB18_X2Y20:RAMB18_X2Y39}
 resize_pblock [get_pblocks pblock_U_PR_A] -add {RAMB36_X2Y10:RAMB36_X2Y19}
-set_property HD.PARTPIN_RANGE {SLICE_X36Y50:SLICE_X37Y74} [get_pins U_PR_A/*]
 set_property CONTAIN_ROUTING true [get_pblocks pblock_U_PR_A]
+create_pblock pblock_U_PR_A_part_pins
+resize_pblock [get_pblocks pblock_U_PR_A_part_pins] -add {SLICE_X36Y50:SLICE_X37Y74}
+set_property HD.PARTPIN_RANGE {SLICE_X36Y50:SLICE_X37Y74} [get_pins U_PR_A/*]
 
 create_pblock pblock_U_PR_B
 add_cells_to_pblock pblock_U_PR_B [get_cells U_PR_B]
@@ -155,8 +157,10 @@ resize_pblock [get_pblocks pblock_U_PR_B] -add {SLICE_X36Y0:SLICE_X79Y49}
 resize_pblock [get_pblocks pblock_U_PR_B] -add {DSP48_X2Y0:DSP48_X2Y19}
 resize_pblock [get_pblocks pblock_U_PR_B] -add {RAMB18_X2Y0:RAMB18_X2Y19}
 resize_pblock [get_pblocks pblock_U_PR_B] -add {RAMB36_X2Y0:RAMB36_X2Y9}
-set_property HD.PARTPIN_RANGE {SLICE_X36Y25:SLICE_X37Y49} [get_pins U_PR_B/*]
 set_property CONTAIN_ROUTING true [get_pblocks pblock_U_PR_B]
+create_pblock pblock_U_PR_B_part_pins
+resize_pblock [get_pblocks pblock_U_PR_B_part_pins] -add {SLICE_X36Y25:SLICE_X37Y49}
+set_property HD.PARTPIN_RANGE {SLICE_X36Y25:SLICE_X37Y49} [get_pins U_PR_B/*]
 
 
 # All BUFG will need LOC's for HD flow. hd_floorplan TCL script writes these LOCS as HD.CLK_SRC into the *_ooc_timing.xdc file
