@@ -11,8 +11,8 @@ PR_module_video_color_inv \
 PR_module_video_crossover \
 PR_module_video_softness }
 
-set FILTER_TYPE_A [lindex $PR_module_list 0] 
-set FILTER_TYPE_B [lindex $PR_module_list 3] 
+set FILTER_TYPE_A [lindex $PR_module_list 3] 
+set FILTER_TYPE_B [lindex $PR_module_list 4] 
 
 read_vhdl -verbose {
 ../src/window.vhd
