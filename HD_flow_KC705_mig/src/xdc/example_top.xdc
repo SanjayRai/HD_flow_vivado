@@ -13,3 +13,5 @@ resize_pblock [get_pblocks pblock_u_mig_7series_ip_top] -add {RAMB18_X4Y0:RAMB18
 resize_pblock [get_pblocks pblock_u_mig_7series_ip_top] -add {RAMB36_X4Y0:RAMB36_X6Y29}
 set_property EXCLUDE_PLACEMENT 1 [get_pblocks pblock_u_mig_7series_ip_top]
 
+create_pblock pblock_u_mig_7series_ip_top_HD_pins
+resize_pblock [get_pblocks pblock_u_mig_7series_ip_top] -add {SLICE_X114Y11:SLICE_X115Y144}

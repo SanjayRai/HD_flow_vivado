@@ -264,6 +264,10 @@ utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_
 utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
 incr fcount
 
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_0/user_design/rtl/ecc/mig_7series_v2_0_fi_xor.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
 utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_0/user_design/rtl/ip_top/mig_7series_v2_0_mem_intfc.v
 utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
 incr fcount
@@ -273,6 +277,10 @@ utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
 incr fcount
 
 utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_0/user_design/rtl/mig_7series_0.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_0/user_design/rtl/mig_7series_0_mig.v
 utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
 incr fcount
 
