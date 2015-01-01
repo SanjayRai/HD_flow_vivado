@@ -34,6 +34,9 @@ read_xdc -verbose ../src/xdc/FMC_DVIDP_CONFIG_test.xdc
 
 synth_design -top FMC_DVIDP_CONFIG_test -fanout_limit 100000 -part $DEVICE
 
+
+if (1) {
+
 set_property HD.PARTITION 1 [get_cells U_PR_A]
 read_checkpoint -cell U_PR_A ../PR_modules/$FILTER_TYPE_A/vivado_hd_flow_batch/U_PR_A_route_design.dcp -strict
 lock_design -level routing U_PR_A
@@ -42,12 +45,13 @@ set_property HD.PARTITION 1 [get_cells U_PR_B]
 read_checkpoint -cell U_PR_B ../PR_modules/$FILTER_TYPE_B/vivado_hd_flow_batch/U_PR_B_route_design.dcp -strict
 lock_design -level routing U_PR_B
 
-report_drc -ruledeck methodology_checks -name top -file ./FMC_DVIDP_CONFIG_test_drc_methodology_checks.rpt
-report_drc -ruledeck timing_checks -name top -file ./FMC_DVIDP_CONFIG_test_drc_timing_checks.rpt
+#report_drc -ruledeck methodology_checks -name top -file ./FMC_DVIDP_CONFIG_test_drc_methodology_checks.rpt
+#report_drc -ruledeck timing_checks -name top -file ./FMC_DVIDP_CONFIG_test_drc_timing_checks.rpt
 opt_design -verbose
 place_design -verbose
 phys_opt_design -verbose
 route_design -verbose -effort_level high
-report_timing -delay_type min_max -path_type full_clock_expanded -max_paths 100 -sort_by group -significant_digits 3 -input_pins -name {results_par_1} -file FMC_DVIDP_CONFIG_test.timing_rpt
-report_timing_summary -delay_type min_max -path_type full_clock_expanded -max_paths 100 -significant_digits 3 -input_pins -file FMC_DVIDP_CONFIG_test.timing_summary_rpt
+#report_timing -delay_type min_max -path_type full_clock_expanded -max_paths 100 -sort_by group -significant_digits 3 -input_pins -name {results_par_1} -file FMC_DVIDP_CONFIG_test.timing_rpt
+#report_timing_summary -delay_type min_max -path_type full_clock_expanded -max_paths 100 -significant_digits 3 -input_pins -file FMC_DVIDP_CONFIG_test.timing_summary_rpt
 write_bitstream ./FMC_DVIDP_CONFIG_test.bit
+}

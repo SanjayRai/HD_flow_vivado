@@ -22,3 +22,6 @@ launch_runs synth_1
 wait_on_run synth_1
 open_run synth_1 -name netlist_1
 source ../Tcl/hd_floorplan_utils.tcl
+
+hd_floorplan [get_cells U_PR_A]
+hd_floorplan [get_cells U_PR_B]

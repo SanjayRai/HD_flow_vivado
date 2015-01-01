@@ -68,7 +68,7 @@
 
 `timescale 1ps/1ps
 
-module mig_7series_v2_0_cmd_prbs_gen_axi #
+module mig_7series_v2_3_cmd_prbs_gen_axi #
   (
    parameter TCQ                 = 100,
    parameter FAMILY              = "SPARTAN6",

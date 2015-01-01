@@ -66,7 +66,7 @@
 //Revision History:
 //*****************************************************************************
 
-module mig_7series_v2_0_axi4_tg #(
+module mig_7series_v2_3_axi4_tg #(
     
      parameter C_AXI_ID_WIDTH           = 4, // The AXI id width used for read and write
                                              // This is an integer between 1-16
@@ -219,7 +219,7 @@ module mig_7series_v2_0_axi4_tg #(
 // AXI4 wrapper instance
 //*****************************************************************************
 
-  mig_7series_v2_0_axi4_wrapper #
+  mig_7series_v2_3_axi4_wrapper #
     (
     
      .C_AXI_ID_WIDTH                   (C_AXI_ID_WIDTH),
@@ -316,7 +316,7 @@ module mig_7series_v2_0_axi4_tg #(
 // Traffic Generator instance
 //*****************************************************************************
 
-  mig_7series_v2_0_tg #
+  mig_7series_v2_3_tg #
     (
   
     .C_AXI_ADDR_WIDTH                  (C_AXI_ADDR_WIDTH),

@@ -96,14 +96,14 @@ module clk_wiz_clk_wiz
   wire        clkfbout_clk_wiz;
   wire        clkfbout_buf_clk_wiz;
   wire        clkfboutb_unused;
-  wire        clkout0b_unused;
-  wire        clkout1_unused;
-  wire        clkout1b_unused;
-  wire        clkout2_unused;
-  wire        clkout2b_unused;
-  wire        clkout3_unused;
-  wire        clkout3b_unused;
-  wire        clkout4_unused;
+    wire clkout0b_unused;
+   wire clkout1_unused;
+   wire clkout1b_unused;
+   wire clkout2_unused;
+   wire clkout2b_unused;
+   wire clkout3_unused;
+   wire clkout3b_unused;
+   wire clkout4_unused;
   wire        clkout5_unused;
   wire        clkout6_unused;
   wire        clkfbstopped_unused;
@@ -123,8 +123,7 @@ module clk_wiz_clk_wiz
     .CLKOUT0_PHASE        (0.000),
     .CLKOUT0_DUTY_CYCLE   (0.500),
     .CLKOUT0_USE_FINE_PS  ("FALSE"),
-    .CLKIN1_PERIOD        (5.0),
-    .REF_JITTER1          (0.010))
+    .CLKIN1_PERIOD        (5.0))
   mmcm_adv_inst
     // Output clocks
    (

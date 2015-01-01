@@ -66,7 +66,7 @@
 //Revision History:
 //*****************************************************************************
 
-module mig_7series_v2_0_axi4_wrapper #(
+module mig_7series_v2_3_axi4_wrapper #(
   
    parameter C_AXI_ID_WIDTH       = 4, // The AXI id width used for read and write
                                        // This is an integer between 1-16
@@ -541,9 +541,7 @@ module mig_7series_v2_0_axi4_wrapper #(
 
   generate 
     begin: data_axi_wr
-      if (C_AXI_NBURST_SUPPORT == 1) begin
-      end
-      else begin
+      if (C_AXI_NBURST_SUPPORT != 1) begin
         
         always @(posedge aclk)
           if (wstate[AXI_WRIDLE])

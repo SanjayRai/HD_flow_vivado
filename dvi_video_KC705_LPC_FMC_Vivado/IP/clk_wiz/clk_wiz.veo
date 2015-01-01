@@ -75,6 +75,6 @@
     // Clock out ports
     .clk_out_50Mhz(clk_out_50Mhz),     // output clk_out_50Mhz
     // Status and control signals
-    .mmcm_reset_in(mmcm_reset_in),// input mmcm_reset_in
+    .mmcm_reset_in(mmcm_reset_in), // input mmcm_reset_in
     .mmcm_locked_out(mmcm_locked_out));      // output mmcm_locked_out
 // INST_TAG_END ------ End INSTANTIATION Template ---------

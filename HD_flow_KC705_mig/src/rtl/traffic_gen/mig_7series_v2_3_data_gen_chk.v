@@ -66,7 +66,7 @@
 //Revision History:
 //*****************************************************************************
 
-module mig_7series_v2_0_data_gen_chk # (
+module mig_7series_v2_3_data_gen_chk # (
 
   parameter C_AXI_DATA_WIDTH     = 32 // Width of the AXI write and read data
   

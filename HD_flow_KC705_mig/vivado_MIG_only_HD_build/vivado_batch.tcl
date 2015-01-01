@@ -27,5 +27,4 @@ route_design
 write_checkpoint -force ./u_mig_7series_ip_top_route_design.dcp
 report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -name timing_1 -file ./u_mig_7series_ip_top_timing_summary.rpt
 report_timing -delay_type min_max -max_paths 10 -sort_by group -input_pins -name timing_2 -file ./u_mig_7series_ip_top_timing.rpt
-close_project
 # *****************************************************************************************

@@ -1,16 +1,16 @@
 #-----------------------------------------------------------
-# Vivado v2013.4 (64-bit)
-# SW Build 353583 on Mon Dec  9 17:26:26 MST 2013
-# IP Build 208076 on Mon Dec  2 12:38:17 MST 2013
-# Start of session at: Mon Mar 31 13:52:24 2014
-# Process ID: 30724
-# Log file: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.log
-# Journal file: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.jou
+# Vivado v2014.4 (64-bit)
+# SW Build 1071353 on Tue Nov 18 16:47:07 MST 2014
+# IP Build 1070531 on Tue Nov 18 01:10:18 MST 2014
+# Start of session at: Wed Dec 31 17:07:35 2014
+# Process ID: 23227
+# Log file: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.log
+# Journal file: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.jou
 #-----------------------------------------------------------
 start_gui
 source vivado_project.tcl
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-report_ip_status -name ip_status_1 
-reset_target all [get_files  /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
-generate_target all [get_files  /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
+upgrade_ip -vlnv xilinx.com:ip:mig_7series:2.3 [get_ips  mig_7series_0]
+generate_target all [get_files  /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
+open_example_project -force -dir /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP [get_ips  mig_7series_0]

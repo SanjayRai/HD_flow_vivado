@@ -11,8 +11,8 @@ proc create_ooc_clocks { cell hier_cell dir } {
    set_msg_config -id "Vivado 12-626" -suppress
 
    set xdcFile "$dir/${cell}_ooc_timing.xdc"
-   if {[catch {file delete -force $xdcFile}] } {
-      set errMsg "ERROR: Could not delete results directory \"$xdcFile\". Verify file is closed."
+   if {[catch {file delete -force $xdcFile} errMSG] } {
+      append errMsg "\nERROR: Could not delete \"$xdcFile\". Verify file is closed."
       error $errMsg
    }
    set fh [open "$xdcFile" w]
@@ -31,16 +31,16 @@ proc create_ooc_clocks { cell hier_cell dir } {
             lappend portClocks $clock.$port 
             set period [get_property PERIOD [get_clocks $clock]]
             set wave [get_property WAVEFORM [get_clocks $clock]] 
-            puts $fh "create_clock -period $period -name ${clock}.${port} \[get_ports $port] -waveform \{$wave\}"
+            puts $fh "create_clock -period $period -name ${clock}.${port} \[get_ports \{$port\}] -waveform \{$wave\}"
          }
          if {[llength $clocks] ==2} {
-            puts $fh "set_clock_groups -name $port -physically_exclusive -group \[get_clocks [lindex $portClocks end]] -group \[get_clocks [lindex $portClocks end-1]]"
+            puts $fh "set_clock_groups -name $port -physically_exclusive -group \[get_clocks \{[lindex $portClocks end]\}] -group \[get_clocks \{[lindex $portClocks end-1]\}]"
          } 
          set clk_src [get_cells -quiet -of [get_pins -quiet -leaf -of [get_nets [get_pins $inpin]] -filter DIRECTION==OUT]]
          if {[llength $clk_src] == 1} {
             set clk_src_val [get_property LOC [get_cells $clk_src]]
             if {[llength $clk_src_val] == 1 && [get_property IS_LOC_FIXED [get_cells $clk_src]]} {
-               puts $fh "set_property HD.CLK_SRC $clk_src_val \[get_ports $port]"
+               puts $fh "set_property HD.CLK_SRC $clk_src_val \[get_ports \{$port\}]"
             } else {
                puts $fh "#WARNING: Clock Source for pin \"$inpin\" ($clk_src) is not locked. Add a location constraint to the XDC prior to running this command."
             }
@@ -63,17 +63,26 @@ proc create_ooc_clocks { cell hier_cell dir } {
          set uncertainty [get_property -quiet UNCERTAINTY $clockPath]
          set startPinDelay [get_property -quiet STARTPOINT_CLOCK_DELAY $clockPath]
          set startPin [get_property -quiet STARTPOINT_PIN $clockPath]
-         set clkPin [get_pins -leaf -of [get_nets -of [get_pins $startPin]] -filter DIRECTION==OUT]
-		 if {[llength $startPin] > 0 && [llength $clkPin] > 0} {
-			set arcDelay_max [get_property DELAY_MAX_RISE [get_timing_arcs -from [get_pins $clkPin] -to [get_pins $startPin]]]
-			set arcDelay_min [get_property DELAY_MIN_RISE [get_timing_arcs -from [get_pins $clkPin] -to [get_pins $startPin]]]
-			#Subtract off minimum arcDelay from max Path delay to get maxInsertion... visa versa for minInsertion
-			set maxInsertion [expr $startPinDelay - $arcDelay_min]
-			set minInsertion [expr $startPinDelay - $arcDelay_max]
-			puts $fh "set_clock_latency -source -max $maxInsertion \[get_clocks $portClock]" 
-			puts $fh "set_clock_latency -source -min $minInsertion \[get_clocks $portClock]" 
-			puts $fh "set_clock_uncertainty $uncertainty \[get_clocks $portClock]"
-		 }
+         set endPin   [get_property -quiet ENDPOINT_PIN $clockPath]
+         if {[string match [get_property CLASS $startPin] "pin"]} {
+            set clkPin [get_pins -leaf -of [get_nets -of [get_pins $startPin]] -filter DIRECTION==OUT]
+         } elseif {[string match [get_property CLASS $endPin] "pin"]} {
+            set clkPin [get_pins -leaf -of [get_nets -of [get_pins $endPin]] -filter DIRECTION==OUT]
+            set startPin $endPin
+         } else {
+            puts "info: No clock pins found in timing path"
+            set clkPin ""
+         }
+         if {[llength $startPin] > 0 && [llength $clkPin] > 0} {
+            set arcDelay_max [get_property DELAY_MAX_RISE [get_timing_arcs -from [get_pins $clkPin] -to [get_pins $startPin]]]
+            set arcDelay_min [get_property DELAY_MIN_RISE [get_timing_arcs -from [get_pins $clkPin] -to [get_pins $startPin]]]
+            #Subtract off minimum arcDelay from max Path delay to get maxInsertion... visa versa for minInsertion
+            set maxInsertion [expr $startPinDelay - $arcDelay_min]
+            set minInsertion [expr $startPinDelay - $arcDelay_max]
+            puts $fh "set_clock_latency -source -max $maxInsertion \[get_clocks \{$portClock\}]" 
+            puts $fh "set_clock_latency -source -min $minInsertion \[get_clocks \{$portClock\}]" 
+			   puts $fh "set_clock_uncertainty $uncertainty \[get_clocks \{$portClock\}]"
+		   }
       }
    }
 
@@ -92,13 +101,13 @@ proc create_ooc_clocks { cell hier_cell dir } {
          set clkPath2 [get_timing_paths -from [get_clocks $clock2] -to [get_clocks $clock1]]
          if {[llength $clkPath1] > 0 || [llength $clkPath2] > 0 } {
             if {[get_property -quiet SLACK $clkPath1] == "" && [get_property -quiet SLACK $clkPath2] == ""} {
-               puts $fh "set_clock_groups -asynchronous -group \[get_clocks $portClock1] -group \[get_clocks $portClock2]"
+               puts $fh "set_clock_groups -asynchronous -group \[get_clocks \{$portClock1\}] -group \[get_clocks \{$portClock2\}]"
             } 
             if {[get_property -quiet SLACK $clkPath1] != ""} { 
-               puts $fh "set_clock_uncertainty -from \[get_clocks $portClock1] -to \[get_clocks $portClock2] [get_property -quiet UNCERTAINTY $clkPath1]"
+               puts $fh "set_clock_uncertainty -from \[get_clocks \{$portClock1\}] -to \[get_clocks \{$portClock2\}] [get_property -quiet UNCERTAINTY $clkPath1]"
             }
             if {[get_property -quiet SLACK $clkPath2] != ""} { 
-               puts $fh "set_clock_uncertainty -from \[get_clocks $portClock2] -to \[get_clocks $portClock1] [get_property -quiet UNCERTAINTY $clkPath2]"
+               puts $fh "set_clock_uncertainty -from \[get_clocks \{$portClock2\}] -to \[get_clocks \{$portClock1\}] [get_property -quiet UNCERTAINTY $clkPath2]"
             }
          }
       }
@@ -154,12 +163,12 @@ proc average_clock_delay {} {
       if {[llength $clockPaths_setup] > 0} {
          set averageClock1Delay_max [expr {double(round(100*$totalClock1Delay_max / $setupPathCount))/100}]
          puts "\tClock: $portClock1, \n\t\tTotal Setup Clock Delay: $totalClock1Delay_max, \n\t\tTotal Number of Paths: $setupPathCount, \n\t\tAverage Clock Delay: $averageClock1Delay_max"
-         puts $fh "set_clock_latency -source -max $averageClock1Delay_max \[get_clocks $portClock1]" 
+         puts $fh "set_clock_latency -source -max $averageClock1Delay_max \[get_clocks \{$portClock1\}]" 
       }
       if {[llength $clockPaths_hold] > 0} {
          set averageClock1Delay_min [expr {double(round(100*$totalClock1Delay_min / $holdPathCount))/100}]
          puts "\tClock: $portClock1, \n\t\tTotal Hold Clock Delay: $totalClock1Delay_min, \n\t\tTotal Number of Paths: $holdPathCount, \n\t\tAverage Clock Delay: $averageClock1Delay_min"
-         puts $fh "set_clock_latency -source -min $averageClock1Delay_min \[get_clocks $portClock1]" 
+         puts $fh "set_clock_latency -source -min $averageClock1Delay_min \[get_clocks \{$portClock1\}]" 
       }
    }
 }
@@ -167,13 +176,18 @@ proc average_clock_delay {} {
 # TCL proc for creating set_logic constraints 
 # Finds all inputs tied to Vcc/Gnd, and all unconnected outputs
 #==============================================================
-proc create_set_logic { cell hier_cell dir } {
+proc create_set_logic { name hier_cell dir {cell 1}} {
    set_msg_config -id "Vivado 12-1023" -suppress
    set_msg_config -id "Vivado 12-584" -suppress
 
-   set xdcFile "$dir/${cell}_ooc_optimize.xdc"
-   if {[catch {file delete -force $xdcFile}] } {
-      set errMsg "ERROR: Could not delete results directory \"$xdcFile\". Verify file is closed."
+   if {$cell} {
+      set xdcFile "$dir/${name}_ooc_optimize.xdc"
+   } else {
+      set xdcFile "$dir/${name}_optimize.xdc"
+   }
+   
+   if {[catch {file delete -force $xdcFile} errMsg] } {
+      append errMsg "\nERROR: Could not delete \"$xdcFile\". Verify file is closed."
       error $errMsg
    }
    set fh [open "$xdcFile" w]
@@ -187,15 +201,23 @@ proc create_set_logic { cell hier_cell dir } {
       set net [get_nets -of [get_pins $inpin]]
       if {[llength $net]==0} {
          #for input pins with no driver. Should be tied to Vcc or Gnd in netlist design.
-         puts "\tWARNING: Found unconnected input pin \"$inpin\". If this script is being ran on an optimzed (implemented) version of the design, pleaes close the current design and rerun on the synthesized netlist design (pre-implementation)."
+         puts "\tWARNING: Found unconnected input pin \"$inpin\". If this script is being run on an optimzed (implemented) version of the design, pleaes close the current design and rerun on the synthesized netlist design (pre-implementation)."
       } else {
          set type [get_property TYPE [get_nets $net]]
          if {[string match -nocase $type "POWER"]} {
             #for inputs tied to Vcc
-            puts $fh "set_logic_one \[get_ports $port]"
+            if {$cell} {
+               puts $fh "set_logic_one \[get_ports \{$port\}]"
+            } else {
+               puts $fh "set_logic_one \[get_pins \{$inpin\}]"
+            }
          } elseif {[string match -nocase $type "GROUND"]} {
             #for input tied to Ground
-            puts $fh "set_logic_zero \[get_ports $port]"
+            if {$cell} {
+               puts $fh "set_logic_zero \[get_ports \{$port\}]"
+            } else {
+               puts $fh "set_logic_zero \[get_pins \{$inpin\}]"
+            }
          }
       }
    }
@@ -206,13 +228,36 @@ proc create_set_logic { cell hier_cell dir } {
       set net [get_nets -of [get_pins $outpin]]
       if {[llength $net]==0} {
          #for output with no nets
-         puts $fh "set_logic_unconnected \[get_ports $port]"
+         if {$cell} {
+            puts $fh "set_logic_unconnected \[get_ports \{$port\}]"
+         } else {
+            puts $fh "set_logic_unconnected \[get_pins \{$outpin\}]"
+         }
       } else {
-         set pin_count [get_property FLAT_PIN_COUNT [get_nets -of [get_pins $outpin]]]
-         set io_port [get_ports -of [get_nets -of [get_pins $outpin]]]
+         set pin_count [get_property FLAT_PIN_COUNT [get_nets $net]]
+         set io_port   [get_ports -of [get_nets $net]]
+         set type      [get_property TYPE [get_nets $net]]
          if {[llength $io_port] == 0 && $pin_count <= 1} {
             #for output with dangling nets
-            puts $fh "set_logic_unconnected \[get_ports $port]"
+            if {$cell} {
+               puts $fh "set_logic_unconnected \[get_ports \{$port\}]"
+            } else {
+               puts $fh "set_logic_unconnected \[get_pins \{$outpin\}]"
+            }
+         } elseif {[string match -nocase $type "POWER"]} {
+            #for outputs tied to Vcc
+            if {$cell} {
+              # puts $fh "set_logic_one \[get_ports $port]"
+            } else {
+              # puts $fh "set_logic_one \[get_pins $outpin]"
+            }
+         } elseif {[string match -nocase $type "GROUND"]} {
+            #for output tied to Ground
+            if {$cell} {
+             #  puts $fh "set_logic_zero \[get_ports $port]"
+            } else {
+             #  puts $fh "set_logic_zero \[get_pins $outpin]"
+            }
          }
       }
    }
@@ -230,64 +275,8 @@ proc write_hd_xdc {inst hierInst dir} {
    set_property HD.LOC_FIXED 1 [get_pins $hierInst/*]
    puts "\tWriting XDC file \"${dir}/${inst}_phys.xdc\"."
    write_xdc -force -cell $hierInst ${dir}/${inst}_phys.xdc
-#   puts "\tWriting XDC file \"${dir}/${inst}_ooc_budget.xdc\"."
-#   ::debug::gen_hd_timing_constraints -percent 50 -of [get_cells $hierInst] -file ${dir}/${inst}_ooc_budget.xdc
-}
-
-#==============================================================
-# Tcl proc for inferring HD.PARTPIN_RANGE based off of SLICE range. 
-# Only supports a single SLICE rectangle
-# Only supported for in-context TopDown implementation 
-# No support for nested Pblocks
-# Creates PP_RANGE for perimeter of SLICE range 
-#==============================================================
-proc set_partpin_range { module } {
-   set_msg_config -id "Vivado 12-2259" -suppress
-   set_msg_config -id "Vivado 12-2261" -suppress
-   
-   puts "\tChecking for existing HD.PARTPIN_RANGE on cell $module"
-   set pins [get_pins $module/*]
-   set count 0
-   foreach pin $pins {
-      set pp_range [get_property HD.PARTPIN_RANGE [get_pins $pin]]
-      if {[llength $pp_range] > 0} {
-         incr count
-      }
-   }
-   if {$count > 0} {
-      puts "\tINFO: $count pins out of [llength $pins] of $module already have an HD.PARTPIN_RANGE constraint. No HD.PARTPIN_RANGE constraint will be created."
-      return 
-   } else {
-      set pblock [get_pblocks -of [get_cells $module]]
-      if {[llength $pblock] > 0} {
-         set grids [get_property GRIDTYPES [get_pblocks $pblock]]
-         if {[lsearch -exact $grids "SLICE"] < 0} {
-            set errMsg "ERROR: Could not infer HD.PARTPIN_RANGE for pins of cell $module because no valid SLICE range was found on Pblock $pblock. A SLICE range must be defined to infer HD.PARTPIN_RANGE constraints."
-            error $errMsg
-         }
-         set slice_range [lsearch -inline -all [get_property GRID_RANGES [get_pblocks $pblock]] "*SLICE*"]
-         if {[llength $slice_range] > 1} {
-            puts "\tINFO: Multiple SLICE ranges found. Using first range found ([lindex $slice_range 0])"
-         }
-         set slice_split [split $slice_range "_ :"]
-         set corner1 [lindex $slice_split 1]
-         set corner2 [lindex $slice_split 3]
-         set yindex [string last "Y" $corner1]
-         set x0 [string range $corner1 0 [expr $yindex - 1]]
-         set y0 [string range $corner1 $yindex end]
-         set yindex [string last "Y" $corner2]
-         set x1 [string range $corner2 0 [expr $yindex - 1]]
-         set y1 [string range $corner2 $yindex end]
-         set range "SLICE_${x0}${y0}:SLICE_${x0}${y1} SLICE_${x0}${y0}:SLICE_${x1}${y0} SLICE_${x0}${y1}:SLICE_${x1}${y1} SLICE_${x1}${y0}:SLICE_${x1}${y1}"
-         puts "\tINFO: Setting HD.PARTPIN_RANGE ($range)"
-         set_property -quiet HD.PARTPIN_RANGE $range [get_pins $module/*]
-      } else {
-         set errMsg "ERROR: Specified cell $module does not have HD.PARTPIN_RANGE constraints, and one cannot be inferred becuase no Pblock was found. Please verify that a Pblock is defined on the hierarchical cell $module, and that there are no child Pblocks. Nested Pblock are not supported by this Tcl proc."
-         error $errMsg
-      }
-   }
-   reset_msg_config -quiet -id "Vivado 12-2259" -suppress
-   reset_msg_config -quiet -id "Vivado 12-2261" -suppress
+   puts "\tWriting XDC file \"${dir}/${inst}_ooc_budget.xdc\"."
+   ::debug::gen_hd_timing_constraints -percent 50 -of [get_cells $hierInst] -file ${dir}/${inst}_ooc_budget.xdc
 }
 
 #==============================================================
@@ -308,17 +297,18 @@ proc hd_floorplan {cells} {
    set outputDir "${projectDir}/../../${relativeDir}"
 
    #If no design is open
-   if { [catch {current_instance}] || [string match "netlist_1" [get_property NAME [current_design]]]==0 } {
-      puts "ERROR: No open design... Opened the Synthesized Design prior to running this command."
-      return
-   }
+   #if { [catch {current_instance}] || [string match "netlist_1" [get_property NAME [current_design]]]==0 } {}
+#   if { [catch {current_instance}] } {
+#      puts "ERROR: No open design... Opened the Synthesized Design prior to running this command."
+#      return
+#   }
 
    #Make sure cells are passed into proc
    if {![llength $cells]} {
       puts "ERROR: No cells specified for command hd_floorplan."
       return
    }
-
+   
    puts "Processing cells: $cells"
    set cell_list ""
    set cell_count 0
@@ -335,7 +325,6 @@ proc hd_floorplan {cells} {
          lappend cell_list $cell_name
       }
       set_property HD.PARTITION 1 [get_cells $cell]
-      set_partpin_range $cell
       create_set_logic $cell_name $cell $outputDir
       create_ooc_clocks $cell_name $cell $outputDir
    }
