@@ -799,3 +799,50 @@ MIG: 22:26:00 : Running vlog_sim_rpr.xit
 MIG: 22:26:00 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
 MIG: 22:26:00 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
 MIG: 22:26:00 : Added 2  files from /home/sanjayr/projects/KC705/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.v /home/sanjayr/projects/KC705/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v ..
+MIG: 14:02:14 : ################# RUNNING MIG BATCH ###################
+MIG: 14:02:14 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2013.4/data/ip/xilinx/mig_7series_v2_0... instDirPath: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 14:02:14 : synp_flow:  -- synthesis_mode: Other
+MIG: 14:02:14 : outputDirectory: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 14:02:14 : vivado_mode: xpg_pa
+MIG: 14:02:14 :  locked false  
+MIG: 14:02:14 : HDL Language: Verilog
+MIG: 14:02:14 : compInfo: false
+MIG: 14:02:14 : Vivado Options xc7k325t ffg900 -2
+MIG: 14:02:14 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 14:02:14 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_0/bin/lin64/mig
+MIG: 14:02:14 : xilinx_path: /home/applications/Xilinx/Vivado/2013.4/ids_lite/ISE
+MIG: 14:02:14 : I am in catch area
+MIG: 14:02:14 : Running /home/applications/Xilinx/Vivado/2013.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_0/bin/lin64/mig -cg_exc_inp /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 14:02:23 : XML_INPUT_FILE: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 14:02:23 : Component_Name: mig_7series_0
+MIG: 14:02:23 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 14:02:23 : Moving mig_7series_0 ...
+MIG: 14:02:23 : Moving mig_7series_0.veo ...
+MIG: 14:02:24 : Running synthesis.xit
+MIG: 14:02:24 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:24 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:24 : Added 87  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/*/*.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/*/*.vhd /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/*/*/*.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/*/*/*.vhd /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/constraints/*.xdc ..
+MIG: 14:02:24 : Running vlog_synth_rpr.xit
+MIG: 14:02:24 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:24 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:24 : Added 2  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig.v ..
+MIG: 14:02:25 : Running implementation.xit
+MIG: 14:02:25 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:25 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:25 : Added 2  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/constraints/*.xdc ..
+MIG: 14:02:25 : Running vlog_synth_rpr.xit
+MIG: 14:02:25 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:25 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:25 : Added 2  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig.v ..
+MIG: 14:02:26 : Running simulation.xit
+MIG: 14:02:26 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:26 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:26 : Added 90  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/*/*.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/example_design/*/*/*.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/*/*.vhd /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/example_design/*/*/*.vhd ..
+MIG: 14:02:26 : Running vlog_sim_rpr.xit
+MIG: 14:02:26 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:26 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:26 : Added 2  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v ..
+MIG: 14:02:27 : Running vlog_sim_rpr.xit
+MIG: 14:02:27 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 14:02:27 : IGN:         <InputClkFreq>200</InputClkFreq> <==>         <InputClkFreq>200</InputClkFreq> 
+MIG: 14:02:27 : Added 2  files from /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.v /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v ..

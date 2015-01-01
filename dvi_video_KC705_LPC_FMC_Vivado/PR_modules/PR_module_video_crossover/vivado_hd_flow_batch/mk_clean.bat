@@ -1,0 +1,13 @@
+rm -rf .Xil/
+rm -rf .ngc2edfcache/
+rm -rf FMC_DVIDP_CONFIG_test.bit
+rm -rf U_PR_*_route_design.dcp
+rm -rf U_PR_*_timing_summary.rpt
+rm -rf U_PR_*_timing.rpt
+rm -rf video_filter_PR_drc_methodology_checks.rpt
+rm -rf video_filter_PR_drc_timing_checks.rpt
+rm -rf FMC_DVIDP_CONFIG_test.timing_rpt
+rm -rf FMC_DVIDP_CONFIG_test.timing_summary_rpt
+rm -rf planAhead.ngc2edif.log
+rm -rf vivado.jou
+rm -rf vivado.log

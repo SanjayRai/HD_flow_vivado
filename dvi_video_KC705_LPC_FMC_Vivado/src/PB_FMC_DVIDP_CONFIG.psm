@@ -1,0 +1,524 @@
+;------------------------------------------------------------------
+;--      _____
+;--     /     \
+;--    /____   \____
+;--   / \===\   \==/
+;--  /___\===\___\/  AVNET
+;--       \======/
+;--        \====/    
+;------------------------------------------------------------------
+;--
+;-- This design is the property of Avnet.  Publication of this
+;-- design is not authorized without written consent from Avnet.
+;-- 
+;-- Please direct any questions to:  technical.support@avnet.com
+;--
+;-- Disclaimer:
+;--    Avnet, Inc. makes no warranty for the use of this code or design.
+;--    This code is provided  "As Is". Avnet, Inc assumes no responsibility for
+;--    any errors, which may appear in this code, nor does it make a commitment
+;--    to update the information contained herein. Avnet, Inc specifically
+;--    disclaims any implied warranties of fitness for a particular purpose.
+;--                     Copyright(c) 2010 Avnet, Inc.
+;--                             All rights reserved.
+;--
+;------------------------------------------------------------------
+;--
+;-- Create Date:         Jan 20, 2010
+;-- Design Name:         DVI_Pass_Through_Demo
+;-- Module Name:         PB_FMC_DVIDP_CONFIG.psm
+;-- Project Name:        DVI_Pass_Through_Demo
+;-- Target Devices:      Spartan-6
+;-- Avnet Boards:        FMC-DVI/DP
+;--
+;-- Tool versions:       ISE 11.4
+;--
+;-- Description:         This file contains the PicoBlaze code which performs:
+;--                      - I2C MUX configuration
+;--                      - TFP403 configuration (via PCA9555 I/O expander)
+;--                      - TFP410 configuration
+;--                      
+;-- Dependencies:        
+;--
+;-- Revision:            Jan 20, 2010: 1.00 Initial Version
+;--
+;------------------------------------------------------------------
+
+                    INCL      "helpers.inc"
+
+CPU_FREQ            EQU       25                  ; in Mhz
+CPU_MIPS            EQU       CPU_FREQ / 2        ; instructions per us		
+
+; Define registers on Picoblaze
+
+; Control and Status
+CSR                 DSIO      $00                 ; control and status register
+
+; I2C interface
+I2C_REG             DSIO      $01                 ; I2C interface register
+I2C_SCL_HIGH        EQU       $0C                 ; to set SCL high
+I2C_SCL_LOW         EQU       $08                 ; to set SCL low
+I2C_SDA_HIGH        EQU       $03                 ; to set SDA high
+I2C_SDA_LOW         EQU       $02                 ; to set SDA low
+I2C_SDA_WE          EQU       $02                 ; bit 0 will indicate SDA level
+
+
+I2C_SCL_PERIOD      EQU       20                  ; microseconds, approximate
+I2C_DVI_TX_ADR      EQU       $70                 ; TFP410  (DVI Transmitter)
+I2C_I2C_MUX_ADR     EQU       $E0                 ; PCA     (I2C Multiplexer)
+I2C_IO_EXP_ADR      EQU       $40                 ; PCA9555 (I/O Expander)
+;                             $CA                 ; CDCE913 (Video Clock Synthesizer)
+
+RESET_PERIOD       EQU       100                 ; 100 msec
+
+; DIPSW interface
+DIPSW               DSIO      $02                 ; DIP Switch input port (8 DIP switches)
+
+; PUSHB interface
+PUSHB               DSIO      $03                 ; Push-Button input port (4 push buttons)
+
+
+; ******************************************************************************
+; Scratch memory equates
+USER_SW             EQU       $00                 ; sw value configured for...
+I2C_ADR_MODE        EQU       $10
+I2C_DEVICE_ADR      EQU       $11                 ; I2C bus device address
+I2C_START_ADR       EQU       $12                 ; memory address within device - 2 bytes
+
+; Main loop status flags
+
+; ******************************************************************************
+; Register definitions
+; the following registers should not be accessed under interrupt
+ms1                 EQU       s0                  ; scratch register
+ms2                 EQU       s1                  ; scratch register
+ms3                 EQU       s2                  ; scratch register
+ms4                 EQU       s3                  ; scratch register
+; ms5                 EQU       s4                  ; scratch register
+
+mode                EQU       s4                  ; current mode
+
+i2c_reg_adr         EQU       s5                  ; for i2c reg write
+i2c_reg_data        EQU       s6                  ; for i2c reg write
+i2c_reg_data1       EQU       s7                  ; for i2c 16-bit reg write
+
+i2c_byte            EQU       s8                  ; i2c transfer byte
+i2c_ctrl            EQU       s9                  ; i2c control byte: b0 = ack level
+delay_length        EQU       sA                  ; delay subroutine parameter
+delay_loop          EQU       sB                  ; delay subroutine internalloop variable
+
+
+; for under interrupt:
+is1                 EQU       sC                  ; scratch register
+is2                 EQU       sD                  ; scratch register
+is3                 EQU       sE                  ; scratch register
+
+
+; 
+; 
+; ******************************************************************************
+                    ORG       $00
+; ******************************************************************************
+; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+; Main loop
+; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+init:
+                  JUMP     check_dipsw
+                  CALL     RESET
+
+main:             
+
+wait_pb4_on:      IN       ms1, PUSHB
+                  AND      ms1, $08
+                  JUMP     Z, wait_pb4_on
+                  
+check_dipsw:      IN       ms1, DIPSW
+                  AND      ms1, $1C
+                  LOAD     mode, ms1
+
+                  ; for now, there are no modes
+                  JUMP     modexx
+                  ; this could be implemented as follows
+;                  COMP     mode, $00
+;                  JUMP     Z, mode00
+;                  COMP     mode, $01
+;                  JUMP     Z, mode01
+                  ; this is the default case
+                  JUMP     wait_pb4_off
+                  
+modexx:           CALL     RESET
+                  CALL     SELECT_MUX2
+                  CALL     TFP403_CFG
+                  CALL     TFP410_CFG
+                  JUMP     wait_pb4_off
+                  
+wait_pb4_off:     IN       ms1, PUSHB
+                  AND      ms1, $08
+                  JUMP     NZ, wait_pb4_off
+
+                  JUMP     main
+                  
+
+
+; ------------------------------------------------------------------------------
+; RESET -
+; IN:
+; OUT: 
+; Modifies: (ms1, ms2, ms3)
+; CALL: delay_Xus
+; ------------------------------------------------------------------------------
+RESET:
+                    LOAD      ms1, 0
+                    OUT       ms1, CSR
+                    LOAD      delay_length, RESET_PERIOD
+                    CALL      delay_Xms
+                    LOAD      ms1, 1
+                    OUT       ms1, CSR
+                    LOAD      delay_length, RESET_PERIOD
+                    CALL      delay_Xms
+                    LOAD      ms1, 0
+                    OUT       ms1, CSR
+                    LOAD      delay_length, RESET_PERIOD
+                    CALL      delay_Xms
+                    RET
+
+; ------------------------------------------------------------------------------
+; SELECT_MUX2 - This mux selection accesses the TFP410 & PCA9555 devices
+; IN:
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2, ms3)
+; CALL: i2c_open_for_read, i2c_read_byte_last
+; ------------------------------------------------------------------------------
+SELECT_MUX2:
+; setup I2C transfers
+                    LOAD      ms1, I2C_I2C_MUX_ADR
+                    STORE     ms1, I2C_DEVICE_ADR
+; main registers
+                    LOAD      i2c_reg_adr, $04
+                    LOAD      i2c_reg_data, $04   ; Enable Mux[2]
+                    CALL      i2c_reg_write
+                    RET
+
+; ------------------------------------------------------------------------------
+; TFP403_CFG - Configuration occurs via the PCA9555's I/O
+; IN:
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2, ms3)
+; CALL: i2c_open_for_read, i2c_read_byte_last
+; ------------------------------------------------------------------------------
+TFP403_CFG:
+; setup I2C transfers
+                    LOAD      ms1, I2C_IO_EXP_ADR
+                    STORE     ms1, I2C_DEVICE_ADR
+; main registers
+                    LOAD      i2c_reg_adr, $06
+                    LOAD      i2c_reg_data, $F1   ; 0x06: GPIO direction
+                                                  ;       PO0 => SCDT    = 1 (input )
+                                                  ;       PO1 => ST      = 0 (output)
+                                                  ;       PO2 => PD#     = 0 (output)
+                                                  ;       PO3 => OCK_INV = 0 (output)
+                    CALL      i2c_reg_write
+                    LOAD      i2c_reg_adr, $02
+                    LOAD      i2c_reg_data, $04   ; 0x02: GPIO output values
+                                                  ;       PO0 => SCDT    = x
+                                                  ;       PO1 => ST      = 0 (low drive strength)
+                                                  ;       PO2 => PD#     = 1 (normal operation)
+                                                  ;       PO3 => OCK_INV = 0 (latch data on falling ODCK edge)
+                    CALL      i2c_reg_write
+                    RET
+
+
+; ------------------------------------------------------------------------------
+; TFP410_CFG -
+; IN:
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2, ms3)
+; CALL: i2c_open_for_read, i2c_read_byte_last
+; ------------------------------------------------------------------------------
+TFP410_CFG:
+; setup I2C transfers
+                    LOAD      ms1, I2C_DVI_TX_ADR
+                    STORE     ms1, I2C_DEVICE_ADR
+; main registers
+                    LOAD      i2c_reg_adr, $08
+                    LOAD      i2c_reg_data, $B3   ; 0x08: CTL_1_MODE
+                                                  ;        [0] PDN# = 1
+                                                  ;        [1] EDGE = 1
+                                                  ;        [2] BSEL = 0 (12-bit dual-edge mode)
+                                                  ;        [3] DSEL = 0 (single-ended clock)
+                    CALL      i2c_reg_write
+                    LOAD      i2c_reg_adr, $0A
+                    LOAD      i2c_reg_data, $10   ; 0x0A: De-Skewing
+                    CALL      i2c_reg_write
+                    RET
+
+
+; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+; I2C Utility functions
+; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+; ------------------------------------------------------------------------------
+; i2c_reg_write -
+; IN: i2c_reg_adr, i2c_reg_data
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2), increments i2c_reg_adr
+; CALL: i2c_send_start, i2c_write_byte
+; ------------------------------------------------------------------------------
+i2c_reg_write:      CALL      i2c_send_start      ; send start
+                    FETCH     i2c_byte, I2C_DEVICE_ADR
+                    CALL      i2c_write_byte      ; send device address byte
+                    TEST      i2c_ctrl, BIT0
+                    RET       NZ
+                    LOAD      i2c_byte, i2c_reg_adr
+                    ADD       i2c_reg_adr, 1
+                    CALL      i2c_write_byte      ; send reg address byte
+                    TEST      i2c_ctrl, BIT0
+                    RET       NZ
+                    LOAD      i2c_byte, i2c_reg_data
+                    CALL      i2c_write_byte_last ; write reg data
+                    RET       
+
+; ------------------------------------------------------------------------------
+; i2c_reg16_write -
+; IN: i2c_reg_adr, i2c_reg_data0, i2c_reg_data1
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2), increments i2c_reg_adr
+; CALL: i2c_send_start, i2c_write_byte
+; ------------------------------------------------------------------------------
+i2c_reg16_write:    CALL      i2c_send_start      ; send start
+                    FETCH     i2c_byte, I2C_DEVICE_ADR
+                    CALL      i2c_write_byte      ; send device address byte
+                    TEST      i2c_ctrl, BIT0
+                    RET       NZ
+                    LOAD      i2c_byte, i2c_reg_adr
+                    ADD       i2c_reg_adr, 1
+                    CALL      i2c_write_byte      ; send reg address byte
+                    TEST      i2c_ctrl, BIT0
+                    RET       NZ
+                    LOAD      i2c_byte, i2c_reg_data1
+                    CALL      i2c_write_byte      ; write reg data
+                    RET       NZ
+                    LOAD      i2c_byte, i2c_reg_data
+                    CALL      i2c_write_byte_last ; write reg data
+                    RET       
+
+; ------------------------------------------------------------------------------
+; i2c_open_for_write - opens and I2C device for write (1-byte addressing only)
+; IN: I2C_DEVICE_ADR, I2C_START_ADR, I2C_ADR_MODE
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2)
+; CALL: i2c_send_start, i2c_write_byte
+; ------------------------------------------------------------------------------
+i2c_open_for_write: CALL      i2c_send_start      ; send start
+                    FETCH     i2c_byte, I2C_DEVICE_ADR
+                    CALL      i2c_write_byte      ; send device address byte
+                    TEST      i2c_ctrl, BIT0
+                    RET       NZ
+                    FETCH     ms1, I2C_ADR_MODE
+                    COMP      ms1, 0              ; address mode 0 = no address bytes
+                    RET       Z
+                    FETCH     i2c_byte, I2C_START_ADR
+                    CALL      i2c_write_byte      ; send first address byte
+                    FETCH     ms1, I2C_ADR_MODE
+                    COMP      ms1, 1              ; address mode 1 = 1 address bytes
+                    RET       Z
+                    FETCH     i2c_byte, I2C_START_ADR + 1
+                    CALL      i2c_write_byte      ; send second address byte
+                    RET       
+
+; ------------------------------------------------------------------------------
+; i2c_open_for_read - opens and I2C device for read (1-byte addressing only)
+; IN: I2C_DEVICE_ADR, I2C_START_ADR, I2C_ADR_MODE
+; OUT: i2c_ctrl:BIT0 indicates ack success (1 = Nak)
+; Modifies: (ms1, ms2)
+; CALL: i2c_open_for_write, i2c_send_start, i2c_write_byte
+; ------------------------------------------------------------------------------
+i2c_open_for_read:  CALL      i2c_open_for_write
+                    TEST      i2c_ctrl, BIT0
+                    RET       NZ
+                    CALL      i2c_send_start
+                    FETCH     i2c_byte, I2C_DEVICE_ADR
+                    OR        i2c_byte, BIT0      ; lsb indicates read
+                    CALL      i2c_write_byte      ; send device address byte
+                    RET       
+
+; ------------------------------------------------------------------------------
+; i2c_read_byte, i2c_read_byte_last
+; IN: 
+; OUT: i2c_byte is read byte, i2c_ctrl b0 indicates ack level
+; Modifies: (ms1, ms2)
+; CALL: i2c_write_read, i2c_send_stop if last
+; ------------------------------------------------------------------------------
+i2c_read_byte:      LOAD      i2c_ctrl, $00       ; assert ack
+                    LOAD      i2c_byte, $FF
+                    JUMP      i2c_write_read
+i2c_read_byte_last: LOAD      i2c_ctrl, $01       ; don't assert ack
+                    LOAD      i2c_byte, $FF
+                    CALL      i2c_write_read
+                    JUMP      i2c_send_stop
+
+; ------------------------------------------------------------------------------
+; i2c_write_byte, i2c_write_byte_last
+; IN: i2c_byte is byte to write
+; OUT: i2c_ctrl b0 indicates ack level
+; Modifies: (ms1, ms2)
+; CALL: i2c_write_read, i2c_send_stop if last or error
+; ------------------------------------------------------------------------------
+i2c_write_byte:     LOAD      i2c_ctrl, $01       ; look for ack
+                    CALL      i2c_write_read
+                    TEST      i2c_ctrl, BIT0      ; test ack
+                    RET       Z
+                    JUMP      i2c_send_stop
+i2c_write_byte_last: LOAD     i2c_ctrl, $01       ; look for ack
+                    CALL      i2c_write_read
+                    JUMP      i2c_send_stop
+
+; 
+; ------------------------------------------------------------------------------
+; i2c_write_read - do I2C Byte transfer
+; IN: i2c_byte holds byte to write, i2c_ctrl b0 is ack level to drive
+; OUT: i2c_byte holds read byte, i2c_ctrl b0 is ack level
+; Modifies: ms1, ms2
+; CALL: delay_Xus
+; ------------------------------------------------------------------------------
+i2c_write_read:     LOAD      ms2, 8              ; shift 8 bits
+i2c_wr_loop:        SL0       i2c_byte            ; now carry holds bit to send
+                    LOAD      ms1, $01
+                    SLA       ms1                 ; now SDA_WE and b0 is send bit
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SCL_HIGH   ; SCL High
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 2
+                    CALL      delay_Xus
+                    IN        ms1, I2C_REG        ; read SDA level
+                    AND       ms1, $01            ; mask off other bits
+                    OR        i2c_byte, ms1       ; save read bit
+                    LOAD      ms1, I2C_SCL_LOW    ; SCL Low
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    SUB       ms2, 1
+                    JUMP      NZ, i2c_wr_loop
+                    LOAD      ms1, i2c_ctrl       ; time for ack bit
+                    AND       ms1, BIT0
+                    OR        ms1, BIT1
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SCL_HIGH   ; SCL High
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 2
+                    CALL      delay_Xus
+                    IN        i2c_ctrl, I2C_REG   ; read SDA level
+                    LOAD      ms1, I2C_SCL_LOW    ; SCL Low
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    RET       
+
+
+; ------------------------------------------------------------------------------
+; i2c_send_start - Sends I2C start
+; IN: I2C_SCL_PERIOD
+; OUT: I2C_REG
+; Modifies: ms1
+; CALL: delay_Xus
+; ------------------------------------------------------------------------------
+i2c_send_start:     LOAD      ms1, I2C_SDA_HIGH   ; make sure SDA is high
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SCL_HIGH   ; make sure SCL is high
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SDA_LOW    ; do start
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SCL_LOW    ; bring clock low for first bit
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    RET       
+; 
+; ------------------------------------------------------------------------------
+; i2c_send_stop - Sends I2C stop
+; IN: I2C_SCL_PERIOD
+; OUT: I2C_REG
+; Modifies: ms1
+; CALL: delay_Xus
+; ------------------------------------------------------------------------------
+i2c_send_stop:      LOAD      ms1, I2C_SDA_LOW    ; make sure SDA is low
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SCL_HIGH   ; make sure SCL is high
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    LOAD      ms1, I2C_SDA_HIGH   ; do stop
+                    OUT       ms1, I2C_REG
+                    LOAD      delay_length, I2C_SCL_PERIOD / 4
+                    CALL      delay_Xus
+                    RET       
+
+; ------------------------------------------------------------------------------
+; delay_Xus: Wait approximately X microseconds (based on CPU_MIPS)
+; IN: delay_length: delay, in us, CPU_MIPS
+; OUT:
+; Modifies: ms1, delay_loop
+; CALL:
+; NOTES: CPU_MIPS must be at least 10 (20 Mhz)
+; Actual delay is (X x CPU_MIPS + 1) instructions +1 for Call
+; ------------------------------------------------------------------------------
+delay_Xus: 
+dxus_us:            LOAD      delay_loop, CPU_MIPS
+                    SUB       delay_loop, 6       ; subtract off loop instructions
+                    TEST      delay_loop, BIT0    ; is it even?
+                    JUMP      Z, dxus_us2
+                    SUB       delay_loop, 1       ; make even, and take a cycle
+dxus_us2:           SUB       delay_loop, 2       ; decrement counter (2/loop)
+                    JUMP      NZ, dxus_us2
+                    SUB       delay_length, 1
+                    JUMP      NZ, dxus_us
+                    RET       
+
+; ------------------------------------------------------------------------------
+; delay_Xms: Wait approximately X milliseconds
+; IN: ms1: delay_length, in ms
+; OUT:
+; Modifies: ms1, delay_length, delay_loop
+; CALL: delay_Xus
+; ------------------------------------------------------------------------------
+delay_Xms:          LOAD      delay_length, 250
+                    CALL      delay_Xus
+                    LOAD      delay_length, 250
+                    CALL      delay_Xus
+                    LOAD      delay_length, 250
+                    CALL      delay_Xus
+                    LOAD      delay_length, 250
+                    CALL      delay_Xus
+                    SUB       ms1, 1
+                    JUMP      NZ, delay_Xms
+                    RET       
+
+
+; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+; Functions that run under interrupt
+; %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+; ------------------------------------------------------------------------------
+; Interrupt Service Routine
+; ------------------------------------------------------------------------------
+ISR: 
+ISR_end:            RETI      DISABLE             ; done with inturrupt
+; ******************************************************************************
+                    ORG       $3FF                ; set interrupt vector
+                    JUMP      ISR                 ; 
+; ******************************************************************************
+                    VHDL      "PB_CODE_template.v", "./PB_FMC_DVIDP_CONFIG.v", "PB_FMC_DVIDP_CONFIG"
+

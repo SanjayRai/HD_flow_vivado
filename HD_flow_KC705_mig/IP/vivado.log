@@ -1,0 +1,38 @@
+#-----------------------------------------------------------
+# Vivado v2013.4 (64-bit)
+# SW Build 353583 on Mon Dec  9 17:26:26 MST 2013
+# IP Build 208076 on Mon Dec  2 12:38:17 MST 2013
+# Start of session at: Mon Mar 31 13:52:24 2014
+# Process ID: 30724
+# Log file: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.log
+# Journal file: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.jou
+#-----------------------------------------------------------
+Attempting to get a license: Implementation
+Feature available: Implementation
+Loading parts and site information from /home/applications/Xilinx/Vivado/2013.4/data/parts/arch.xml
+Parsing RTL primitives file [/home/applications/Xilinx/Vivado/2013.4/data/parts/xilinx/rtl/prims/rtl_prims.xml]
+Finished parsing RTL primitives file [/home/applications/Xilinx/Vivado/2013.4/data/parts/xilinx/rtl/prims/rtl_prims.xml]
+start_gui
+source vivado_project.tcl
+# set DEVICE xc7k325tffg900-2
+# create_project project_X project_X -part $DEVICE
+# add_files -verbose {
+#     ./mig_7series_0/mig_7series_0.xci
+# }
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/home/applications/Xilinx/Vivado/2013.4/data/ip'.
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+report_ip_status -name ip_status_1 
+reset_target all [get_files  /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
+generate_target all [get_files  /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
+INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'mig_7series_0'...
+Running instantiation template file delivery for 'mig_7series_0'...
+Instantiation File: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.veo
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'mig_7series_0'...
+INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'mig_7series_0'...
+INFO: [IP_Flow 19-1686] Generating 'Change Log' target for IP 'mig_7series_0'...
+generate_target: Time (s): cpu = 00:00:15 ; elapsed = 00:00:15 . Memory (MB): peak = 5004.887 ; gain = 0.000
+exit
+INFO: [Common 17-206] Exiting Vivado at Mon Mar 31 14:02:54 2014...

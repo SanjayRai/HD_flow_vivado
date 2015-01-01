@@ -1,0 +1,16 @@
+#-----------------------------------------------------------
+# Vivado v2013.4 (64-bit)
+# SW Build 353583 on Mon Dec  9 17:26:26 MST 2013
+# IP Build 208076 on Mon Dec  2 12:38:17 MST 2013
+# Start of session at: Mon Mar 31 13:52:24 2014
+# Process ID: 30724
+# Log file: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.log
+# Journal file: /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/vivado.jou
+#-----------------------------------------------------------
+start_gui
+source vivado_project.tcl
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+report_ip_status -name ip_status_1 
+reset_target all [get_files  /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
+generate_target all [get_files  /home/sanjayr/projects/KC705/temp/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_7series_0.xci]
