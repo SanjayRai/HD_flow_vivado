@@ -1244,3 +1244,132 @@ MIG: 17:22:14 : Moving mig_7series_0 ...
 MIG: 17:22:15 : Moving mig_7series_0.veo ...
 MIG: 17:22:15 : axi -- AXI
 MIG: 17:22:15 : data_depth -- 1024
+MIG: 20:25:36 : ################# RUNNING MIG BATCH ###################
+MIG: 20:25:36 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2014.4/data/ip/xilinx/mig_7series_v2_3... instDirPath: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 20:25:36 : synp_flow:  -- synthesis_mode: Other
+MIG: 20:25:36 : outputDirectory: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 20:25:36 : vivado_mode: xpg_pa
+MIG: 20:25:36 :  locked false  
+MIG: 20:25:36 : HDL Language: Verilog
+MIG: 20:25:36 : compInfo: false
+MIG: 20:25:36 : Vivado Options xc7k325t ffg900 -2
+MIG: 20:25:36 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 20:25:36 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig
+MIG: 20:25:36 : xilinx_path: /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE
+MIG: 20:25:36 : I am in catch area
+MIG: 20:25:36 : Running /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig -cg_exc_inp /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 20:25:49 : XML_INPUT_FILE: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 20:25:49 : Component_Name: mig_7series_0
+MIG: 20:25:49 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 20:25:49 : Moving mig_7series_0 ...
+MIG: 20:25:50 : Moving mig_7series_0.veo ...
+MIG: 20:25:50 : Running synthesis.xit
+MIG: 20:25:50 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 20:25:50 : ERR:     <Version>2.0</Version> <==>     <Version>2.3</Version> 
+MIG: 20:25:50 : ################# RUNNING MIG BATCH ###################
+MIG: 20:25:50 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2014.4/data/ip/xilinx/mig_7series_v2_3... instDirPath: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 20:25:50 : synp_flow:  -- synthesis_mode: Other
+MIG: 20:25:50 : outputDirectory: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 20:25:50 : vivado_mode: xpg_pa
+MIG: 20:25:50 :  locked false  
+MIG: 20:25:50 : HDL Language: Verilog
+MIG: 20:25:50 : compInfo: false
+MIG: 20:25:50 : Vivado Options xc7k325t ffg900 -2
+MIG: 20:25:50 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 20:25:50 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig
+MIG: 20:25:50 : xilinx_path: /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE
+MIG: 20:25:50 : I am in catch area
+MIG: 20:25:50 : Running /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig -cg_exc_inp /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 20:26:03 : XML_INPUT_FILE: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 20:26:03 : Component_Name: mig_7series_0
+MIG: 20:26:03 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 20:26:03 : Moving mig_7series_0 ...
+MIG: 20:26:04 : Moving mig_7series_0.veo ...
+MIG: 20:26:05 : Running vlog_synth_rpr.xit
+MIG: 20:26:05 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 20:26:05 : ERR:     <Version>2.0</Version> <==>     <Version>2.3</Version> 
+MIG: 20:26:05 : ################# RUNNING MIG BATCH ###################
+MIG: 20:26:05 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2014.4/data/ip/xilinx/mig_7series_v2_3... instDirPath: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 20:26:05 : synp_flow:  -- synthesis_mode: Other
+MIG: 20:26:05 : outputDirectory: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 20:26:05 : vivado_mode: xpg_pa
+MIG: 20:26:05 :  locked false  
+MIG: 20:26:05 : HDL Language: Verilog
+MIG: 20:26:05 : compInfo: false
+MIG: 20:26:05 : Vivado Options xc7k325t ffg900 -2
+MIG: 20:26:05 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 20:26:05 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig
+MIG: 20:26:05 : xilinx_path: /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE
+MIG: 20:26:05 : I am in catch area
+MIG: 20:26:05 : Running /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig -cg_exc_inp /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 20:26:17 : XML_INPUT_FILE: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 20:26:17 : Component_Name: mig_7series_0
+MIG: 20:26:17 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 20:26:17 : Moving mig_7series_0 ...
+MIG: 20:26:18 : Moving mig_7series_0.veo ...
+MIG: 20:26:18 : Running simulation.xit
+MIG: 20:26:18 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 20:26:18 : ERR:     <Version>2.0</Version> <==>     <Version>2.3</Version> 
+MIG: 20:26:18 : ################# RUNNING MIG BATCH ###################
+MIG: 20:26:18 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2014.4/data/ip/xilinx/mig_7series_v2_3... instDirPath: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 20:26:18 : synp_flow:  -- synthesis_mode: Other
+MIG: 20:26:18 : outputDirectory: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 20:26:18 : vivado_mode: xpg_pa
+MIG: 20:26:18 :  locked false  
+MIG: 20:26:18 : HDL Language: Verilog
+MIG: 20:26:18 : compInfo: false
+MIG: 20:26:18 : Vivado Options xc7k325t ffg900 -2
+MIG: 20:26:18 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 20:26:18 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig
+MIG: 20:26:18 : xilinx_path: /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE
+MIG: 20:26:18 : I am in catch area
+MIG: 20:26:18 : Running /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig -cg_exc_inp /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 20:26:31 : XML_INPUT_FILE: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 20:26:31 : Component_Name: mig_7series_0
+MIG: 20:26:31 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 20:26:31 : Moving mig_7series_0 ...
+MIG: 20:26:32 : Moving mig_7series_0.veo ...
+MIG: 20:26:32 : Running vlog_sim_rpr.xit .. PRASAD DBG1
+MIG: 20:26:32 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 20:26:32 : ERR:     <Version>2.0</Version> <==>     <Version>2.3</Version> 
+MIG: 20:26:32 : ################# RUNNING MIG BATCH ###################
+MIG: 20:26:32 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2014.4/data/ip/xilinx/mig_7series_v2_3... instDirPath: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 20:26:32 : synp_flow:  -- synthesis_mode: Other
+MIG: 20:26:32 : outputDirectory: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 20:26:32 : vivado_mode: xpg_pa
+MIG: 20:26:32 :  locked false  
+MIG: 20:26:32 : HDL Language: Verilog
+MIG: 20:26:32 : compInfo: false
+MIG: 20:26:32 : Vivado Options xc7k325t ffg900 -2
+MIG: 20:26:32 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 20:26:32 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig
+MIG: 20:26:32 : xilinx_path: /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE
+MIG: 20:26:33 : I am in catch area
+MIG: 20:26:33 : Running /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig -cg_exc_inp /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 20:26:45 : XML_INPUT_FILE: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 20:26:45 : Component_Name: mig_7series_0
+MIG: 20:26:45 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 20:26:45 : Moving mig_7series_0 ...
+MIG: 20:26:46 : Moving mig_7series_0.veo ...
+MIG: 20:26:46 : Running implementation.xit
+MIG: 20:26:46 : IGN:     <ModuleName>mig_7series_0</ModuleName> <==>     <ModuleName>mig_7series_0</ModuleName> 
+MIG: 20:26:46 : ERR:     <Version>2.0</Version> <==>     <Version>2.3</Version> 
+MIG: 20:26:46 : ################# RUNNING MIG BATCH ###################
+MIG: 20:26:46 : Writing IN file for 'mig_7series_0'...compDirPath: /home/applications/Xilinx/Vivado/2014.4/data/ip/xilinx/mig_7series_v2_3... instDirPath: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0
+MIG: 20:26:46 : synp_flow:  -- synthesis_mode: Other
+MIG: 20:26:46 : outputDirectory: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/_tmp/
+MIG: 20:26:46 : vivado_mode: xpg_pa
+MIG: 20:26:46 :  locked false  
+MIG: 20:26:46 : HDL Language: Verilog
+MIG: 20:26:46 : compInfo: false
+MIG: 20:26:46 : Vivado Options xc7k325t ffg900 -2
+MIG: 20:26:46 : 1: xc7k325t 2: ffg900 3: -2
+MIG: 20:26:46 : relative mig path: coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig
+MIG: 20:26:46 : xilinx_path: /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE
+MIG: 20:26:46 : I am in catch area
+MIG: 20:26:46 : Running /home/applications/Xilinx/Vivado/2014.4/ids_lite/ISE/coregen/ip/xilinx/other/com/xilinx/ip/mig_7series_v2_3/bin/lin64/mig -cg_exc_inp /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.in -cg_exc_out /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/xil_txt.out ... 
+MIG: 20:26:59 : XML_INPUT_FILE: /mnt/projects_MCshare/GIT_HUB_UPDATE_2014_4/HD_flow_vivado/HD_flow_KC705_mig/IP/mig_7series_0/mig_a.prj
+MIG: 20:26:59 : Component_Name: mig_7series_0
+MIG: 20:26:59 : Moving mig_7series_0_xmdf.tcl ...
+MIG: 20:26:59 : Moving mig_7series_0 ...
+MIG: 20:27:00 : Moving mig_7series_0.veo ...
