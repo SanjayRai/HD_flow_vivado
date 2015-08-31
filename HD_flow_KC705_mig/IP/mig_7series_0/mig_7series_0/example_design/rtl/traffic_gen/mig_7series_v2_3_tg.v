@@ -64,6 +64,7 @@
 //Reference:
 //Revision History:
 //*****************************************************************************
+`timescale 1ps/1ps
 
 module mig_7series_v2_3_tg #(
   

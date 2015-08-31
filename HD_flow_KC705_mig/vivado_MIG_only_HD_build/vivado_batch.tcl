@@ -23,6 +23,7 @@ set_property HD.PARTITION 1 [current_design]
 read_xdc -mode out_of_context ../src/xdc/u_mig_7series_ip_top_ooc_budget.xdc
 opt_design
 place_design
+phys_opt_design
 route_design
 write_checkpoint -force ./u_mig_7series_ip_top_route_design.dcp
 report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -name timing_1 -file ./u_mig_7series_ip_top_timing_summary.rpt

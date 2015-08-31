@@ -368,6 +368,7 @@ function integer clogb2 (input integer size);
 
   assign tg_compare_error = cmd_err | data_msmatch_err | write_err | read_err;
       
+      
 
 
       

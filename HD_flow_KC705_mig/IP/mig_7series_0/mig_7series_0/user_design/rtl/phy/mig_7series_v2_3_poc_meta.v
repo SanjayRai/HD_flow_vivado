@@ -115,7 +115,7 @@ module mig_7series_v2_3_poc_meta #
   rst, clk, mmcm_edge_detect_rdy, run, run_polarity, run_end,
   rise_lead_right, rise_trail_left, rise_lead_center,
   rise_trail_center, rise_trail_right, rise_lead_left, ninety_offsets,
-  use_noise_window, ktap_at_right_edge, ktap_at_left_edge
+  use_noise_window, ktap_at_right_edge, ktap_at_left_edge, run_too_small
   );
 
   localparam NINETY = TAPSPERKCLK/4;
@@ -158,7 +158,15 @@ module mig_7series_v2_3_poc_meta #
 
   input mmcm_edge_detect_rdy;
 
-  wire reset_run_ends = rst || ~mmcm_edge_detect_rdy;
+  reg [1:0] run_ends_r;
+  input run_too_small;
+  reg run_too_small_r1, run_too_small_r2, run_too_small_r3;
+
+  always @ (posedge clk) run_too_small_r1 <= #TCQ run_too_small & (run_ends_r == 'd1);  //align with run_end_r1;
+  always @ (posedge clk) run_too_small_r2 <= #TCQ run_too_small_r1;
+  always @ (posedge clk) run_too_small_r3 <= #TCQ run_too_small_r2;
+
+  wire reset_run_ends = rst || ~mmcm_edge_detect_rdy || run_too_small_r3 ;
 
   // This input used only for the SVA.
   input [TAPCNTRWIDTH-1:0] run;
@@ -175,7 +183,6 @@ module mig_7series_v2_3_poc_meta #
   always @(posedge clk) run_polarity_held_r <= #TCQ run_polarity_held_ns;
   always @(*) run_polarity_held_ns = run_end ? run_polarity : run_polarity_held_r;
   
-  reg [1:0] run_ends_r;
   reg [1:0] run_ends_ns;
   always @(posedge clk) run_ends_r <= #TCQ run_ends_ns;
   always @(*) begin

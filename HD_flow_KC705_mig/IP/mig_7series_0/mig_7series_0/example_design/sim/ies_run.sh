@@ -73,7 +73,7 @@
 #libraries path#
 
 #Compile all modules#
-ncvlog -sv -work worklib -messages ../../../sources_1/imports/rtl/*.v >> ies_sim.log
+ncvlog -sv -work worklib -messages ../../../sources_1/imports/rtl/*.v > ies_sim.log
 ncvlog -work worklib -messages -sv ../../../sources_1/imports/rtl/traffic_gen/*.v >> ies_sim.log
 ncvlog -sv -work worklib -messages ../../../sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v >> ies_sim.log
 ncvlog -sv -work worklib -messages ../../../sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.v >> ies_sim.log
@@ -93,7 +93,7 @@ ncvlog -work worklib -messages wiredly.v >> ies_sim.log
 ncvlog -work worklib -messages sim_tb_top.v >> ies_sim.log
 
 #Pass the parameters for memory model parameter file#
-ncvlog -work worklib -messages -sv +define+x1Gb +define+sg125 +define+x8 ddr3_model.v >> ies_sim.log 
+ncvlog -work worklib -messages -sv +define+x1Gb +define+sg125 +define+x8 ddr3_model.sv >> ies_sim.log 
 
 #Simulate the design with sim_tb_top as the top module
 ncelab -namemap_mixgen -timescale '1ps/1ps' -vhdlsync -v93 -messages -nettype_port_relax -access +rwc sim_tb_top glbl >> ies_sim.log

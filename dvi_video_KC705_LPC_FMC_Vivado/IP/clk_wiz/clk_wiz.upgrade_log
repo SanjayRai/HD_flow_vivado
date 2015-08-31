@@ -1,3 +1,24 @@
+Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2015.2.1 (lin64) Build 1302555 Wed Aug  5 13:06:02 MDT 2015
+| Date         : Sat Aug 29 18:24:25 2015
+| Host         : centosMC running 64-bit CentOS release 6.7 (Final)
+| Command      : upgrade_ip
+| Device       : xc7k325tffg900-2
+--------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'clk_wiz'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of clk_wiz (xilinx.com:ip:clk_wiz:5.1) from (Rev. 5) to (Rev. 7)
+
+
+
+
+
+
 Copyright 1986-2014 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2014.4 (lin64) Build 1071353 Tue Nov 18 16:47:07 MST 2014

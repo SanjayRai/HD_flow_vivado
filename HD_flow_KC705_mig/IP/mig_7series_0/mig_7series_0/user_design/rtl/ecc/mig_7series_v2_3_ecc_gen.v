@@ -159,7 +159,7 @@ module mig_7series_v2_3_ecc_gen
         begin
           // The "== 1'bx" is so this will converge at time zero.
           // XST assumes false, which should be OK.
-          if ((&i == 1'bx) || trig1) next_combo[index] = i[index];
+          if (trig1) next_combo[index] = i[index];
           else begin
             next_combo[index] = 1'b0;
             ones = ones + i[index];

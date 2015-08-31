@@ -58,19 +58,19 @@
 ##
 ## Device          : 7 Series
 ## Design Name     : DDR3 SDRAM
-## Purpose         : Steps to run simulations using Modelsim, Cadence IES, and
-##                   Synopsys VCS
+## Purpose         : Steps to run simulations using Modelsim/QuestaSim,
+##                   Cadence IES, and Synopsys VCS
 ## Assumptions     : Simulations are run in \sim folder of MIG output "Open IP
 ##                   Example Design" directory
 ## Reference       :
 ## Revision History:
 ###############################################################################
 
-MIG outputs script files required to run the simulations for Modelsim, 
-Vivado Simulator, IES and VCS. These scripts are valid only for running 
+MIG outputs script files required to run the simulations for Modelsim/QuestaSim,
+Vivado Simulator, IES and VCS. These scripts are valid only for running
 simulations for "Open IP Example Design"
 
-1. How to run simulations in Modelsim simulator
+1. How to run simulations in Modelsim/QuestaSim simulator
 
    A) sim.do File :
 
@@ -88,20 +88,21 @@ simulations for "Open IP Example Design"
 
       c) Displays the waveforms that are listed with "add wave" command.
 
-   B) Steps to run the Modelsim simulation:
+   B) Steps to run the Modelsim/QuestaSim simulation:
 
-      a) The user should invoke the Modelsim simulator GUI.
+      a) The user should invoke the Modelsim/QuestaSim simulator GUI.
 
       b) Change the present working directory path to the sim folder.
-         In Transcript window, at Modelsim prompt, type the following command to
-         change directory path.
+         In Transcript window, at Modelsim/QuestaSim prompt, type the following
+         command to change directory path.
             cd <sim directory path>
 
       c) Run the simulation using sim.do file.
-         At Modelsim prompt, type the following command:
+         At Modelsim/QuestaSim prompt, type the following command:
             do sim.do
 
-      d) To exit simulation, type the following command at Modelsim prompt:
+      d) To exit simulation, type the following command at Modelsim/QuestaSim
+         prompt:
             quit -f
 
       e) Verify the transcript file for the memory transactions.
@@ -111,22 +112,22 @@ simulations for "Open IP Example Design"
    A) Following files are provided :
 
       a) The 'xsim_run.bat' is the executable file for Vivado simulator under
-	     MicroSoft Windows environment.
-		 
-      b) The 'xsim_run.sh' is the executable file for Vivado simulator under
-	     Linux environment.
-		 
-	  c) The 'xsim_run.bat'/'xsim_run.sh' file has commands to compile and 
-	     simulate memory interface design and run the simulation for specified 
-		 period of time.
+         MicroSoft Windows environment.
 
-	  d) xsim_options.tcl file has commands to add waveforms and simulation 
-	     period.
-		 
-	  e) xsim_files.prj file has list of rtl files for simulating the design.
-		 
-      f) $XILINX_VIVADO environment variable must be set in order to compile 
-	     glbl.v file
+      b) The 'xsim_run.sh' is the executable file for Vivado simulator under
+         Linux environment.
+
+      c) The 'xsim_run.bat'/'xsim_run.sh' file has commands to compile and
+         simulate memory interface design and run the simulation for specified
+         period of time.
+
+      d) xsim_options.tcl file has commands to add waveforms and simulation
+         period.
+
+      e) xsim_files.prj file has list of rtl files for simulating the design.
+
+      f) $XILINX_VIVADO environment variable must be set in order to compile
+         glbl.v file
 
    B) Steps to run the Vivado Simulator simulation:
 
@@ -134,7 +135,7 @@ simulations for "Open IP Example Design"
          IP Example Design" path in the OS terminal.
 
       b) Run the simulation using xsim_run.sh file under Linux environment and
-	     xsim_run.bat under MicroSoft Windows environment.
+         xsim_run.bat under MicroSoft Windows environment.
 
       c) Verify the transcript file for the memory transactions.
 
@@ -145,16 +146,27 @@ simulations for "Open IP Example Design"
       a) The "ies_run.sh" file contains the commands for simulation of the
          hdl files.
 
-      b) Libraries must be added to the "ies_run.sh" file before running
-         simulations. Following lines must be added to the file, just below the
-         comment line #libraries path#
+      b) Libraries must be mapped before running simulations. Following
+         procedure must be followed to before running simulations
 
-         ncvlog -work worklib -messages $XILINX_VIVADO/data/verilog/src/unisims/*.v >> ies_sim.log
-         ncvlog -work worklib -messages $XILINX_VIVADO/data/verilog/src/retarget/*.v >> ies_sim.log
-         ncvlog -work worklib -messages -file $XILINX_VIVADO/data/secureip/secureip_cell.list.f >> ies_sim.log
+        1. Create two files named cds.lib and hdl.var in this directory
+        2. Create a directory 'worklib' in same directory.
+            mkdir worklib
+        3. Add following lines in the cds.lib file to map Xilinx libraries
 
-         Also, $XILINX_VIVADO environment variable must be set in order to
-         compile glbl.v file and the above mentioned library files
+            DEFINE unisim /proj/xbuilds/2014.4_daily_latest/clibs/ius/13.20.005/lin64/lib/./unisim
+            DEFINE unisims_ver  /proj/xbuilds/2014.4_daily_latest/clibs/ius/13.20.005/lin64/lib/./unisims_ver
+            DEFINE secureip  /proj/xbuilds/2014.4_daily_latest/clibs/ius/13.20.005/lin64/lib/./secureip
+            DEFINE worklib ./worklib
+
+        4. ATTENTION: In above lines replace the path for libraries as per your
+            compiled Xilinx libraries directory
+        5. ATTENTION: Add the lines in the same order given above
+        6. Please make sure you need to map all Xilinx libraries mentioned above
+        7. Save and close the cds.lib file
+
+        Also, $XILINX_VIVADO environment variable must be set in order to
+        compile glbl.v file and the above mentioned library files
 
    B) Steps to run the IES simulation:
 
@@ -172,16 +184,23 @@ simulations for "Open IP Example Design"
 
       a) The "vcs_run.sh" file contains the commands for simulation of hdl files.
 
-      b) Libraries must be added to the "vcs_run.sh" file before running
-         simulations. Following lines must be added to the file, just below the
-         comment line #libraries path#
+      b) Libraries must be mapped before running simulations. Following
+         procedure must be followed to before running simulations
 
-         vlogan $XILINX_VIVADO/data/verilog/src/unisims/*.v >> vcs_sim.log
-         vlogan $XILINX_VIVADO/data/verilog/src/retarget/*.v >> vcs_sim.log
-         vlogan -f $XILINX_VIVADO/data/secureip/secureip_cell.list.f >> vcs_sim.log
+        1. Create a file named synopsys_sim.setup in this directory
+        2. Add following lines in the synopsys_sim.setup file to map Xilinx
+           libraries
 
-         Also, $XILINX_VIVADO environment variable must be set in order to
-         compile glbl.v file and the above mentioned library files
+            unisim : /proj/xbuilds/2014.4_daily_latest/clibs/vcs/I-2014.03/lin64/lib/unisim
+            secureip     : /proj/xbuilds/2014.4_daily_latest/clibs/vcs/I-2014.03/lin64/lib/secureip
+            unisims_ver  : /proj/xbuilds/2014.4_daily_latest/clibs/vcs/I-2014.03/lin64/lib/unisims_ver
+
+        3. ATTENTION: In above lines replace the path for libraries as per your
+            Compiled Xilinx libraries directory
+        4. Please make sure you need to map all Xilinx libraries mentioned above
+
+        Also, $XILINX_VIVADO environment variable must be set in order to
+        compile glbl.v file and the above mentioned library files
 
    B) Steps to run the VCS simulation:
 

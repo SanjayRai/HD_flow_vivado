@@ -106,6 +106,7 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
   (parameter DQS_CNT_WIDTH       = 3,
    parameter DQS_WIDTH           = 8,
    parameter nCK_PER_CLK         = 4,
+   parameter SAMPLES             = 128,
    parameter TCQ                 = 100)
   (/*AUTOARG*/
   // Outputs
@@ -123,6 +124,14 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
   fuzz2zero, oneeighty2fuzz, fuzz2oneeighty, z2f, f2z, o2f, f2o,
   scan_right, samp_done, wl_po_fine_cnt_sel, po_rdy
   );
+
+  function integer clogb2 (input integer size); // ceiling logb2
+    begin
+      size = size - 1;
+      for (clogb2=1; size>1; clogb2=clogb2+1)
+            size = size >> 1;
+    end
+  endfunction // clogb2
  
   input clk;
   input rst;
@@ -258,12 +267,13 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
   wire oneeighty = f2o && o2f;
 
   reg win_not_found;
-  reg [1:0] ninety_offsets_final;
+  reg [1:0] ninety_offsets_final_ns, ninety_offsets_final_r;
+  always @(posedge clk) ninety_offsets_final_r <= #TCQ ninety_offsets_final_ns;
   reg [5:0] left, right, current_edge;
   always @(*) begin
     left = lim2ocal_stg3_left_lim;
     right = lim2ocal_stg3_right_lim;
-    ninety_offsets_final = 2'd0;
+    ninety_offsets_final_ns = 2'd0;
     win_not_found = 1'b0;
     if (zero) begin
       left = fuzz2zero;
@@ -272,19 +282,19 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
     else if (noise) begin
       left = zero2fuzz;
       right = fuzz2oneeighty;
-      ninety_offsets_final = 2'd1;
+      ninety_offsets_final_ns = 2'd1;
     end
     else if (oneeighty) begin
       left = fuzz2oneeighty;
       right = oneeighty2fuzz;
-      ninety_offsets_final = 2'd2;
+      ninety_offsets_final_ns = 2'd2;
     end
     else if (z2f) begin
       right = zero2fuzz;
     end
     else if (f2o) begin
       left = fuzz2oneeighty;
-      ninety_offsets_final = 2'd2;
+      ninety_offsets_final_ns = 2'd2;
     end
     else if (f2z) begin
       left = fuzz2zero;
@@ -312,7 +322,12 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
   wire left_stop = left_lim || scan_right;
   wire right_stop = right_lim || o2f;
 
-  reg [4:0] resume_wait_ns, resume_wait_r;
+  // POC samples every other fabric clock.
+  localparam POC_SAMPLE_CLEAR_WAIT = SAMPLES * 2 > 15 ? SAMPLES * 2 : 15;
+  localparam MAX_RESUME_WAIT = POC_SAMPLE_CLEAR_WAIT > 31 ? POC_SAMPLE_CLEAR_WAIT : 31;
+  localparam RESUME_WAIT_WIDTH = clogb2(MAX_RESUME_WAIT + 1);
+
+  reg [RESUME_WAIT_WIDTH-1:0] resume_wait_ns, resume_wait_r;
   always @(posedge clk) resume_wait_r <= #TCQ resume_wait_ns;
 
   wire resume_wait = |resume_wait_r;
@@ -340,12 +355,12 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
   reg [3:0] sm_ns, sm_r;
   always @(posedge clk) sm_r <= #TCQ sm_ns;
 
-  (* dont_touch = "true" *) reg phy_rddata_en_3_second_ns, phy_rddata_en_3_second_r;
+  reg phy_rddata_en_3_second_ns, phy_rddata_en_3_second_r;
   always @(posedge clk) phy_rddata_en_3_second_r <= #TCQ phy_rddata_en_3_second_ns;
   always @(*) phy_rddata_en_3_second_ns = ~reset_scan && (phy_rddata_en_3 
                                                     ? ~phy_rddata_en_3_second_r 
                                                     : phy_rddata_en_3_second_r);
-  (* dont_touch = "true" *) wire use_samp_done = nCK_PER_CLK == 2 ? phy_rddata_en_3 && phy_rddata_en_3_second_r : phy_rddata_en_3;
+  wire use_samp_done = nCK_PER_CLK == 2 ? phy_rddata_en_3 && phy_rddata_en_3_second_r : phy_rddata_en_3;
 
   reg po_center_wait;
   reg po_slew;
@@ -445,7 +460,7 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
 
 	/*AL("SLEW_PO")*/4'd3:begin
 	    po_slew = 1'b1;
-	    ninety_offsets_ns = |ninety_offsets_final ? 2'b01 : 2'b00;
+	    ninety_offsets_ns = |ninety_offsets_final_r ? 2'b01 : 2'b00;
 	    if (~resume_wait) begin
 	      if (po_done_r) begin
                 if (inc_po_r) ocd2stg3_inc_r = 1'b1;
@@ -475,7 +490,7 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
 		    sm_ns = /*AK("DQS_STOP_WAIT")*/4'd6;
 		    oclk_center_write_resume_ns = 1'b0;  
 	         end else begin
-                     if (ninety_offsets_r != ninety_offsets_final && ocd_edge_detect_rdy_r) begin
+                     if (ninety_offsets_r != ninety_offsets_final_r && ocd_edge_detect_rdy_r) begin
                        ninety_offsets_ns = ninety_offsets_r + 2'b01;
 		       sm_ns = /*AK("WAIT_ONE")*/4'd5;
 		     end else begin
@@ -561,12 +576,14 @@ module mig_7series_v2_3_ddr_phy_ocd_po_cntlr #
 	   end
 	 end // else: !if(two_r == 2'b10)
 
-    if (ocd_ktap_left_ns && ~ocd_ktap_left_r) resume_wait_ns = 5'b1;
-    else if (oclk_center_write_resume_ns ^ oclk_center_write_resume_r) resume_wait_ns = 5'd15;
+    if (ocd_ktap_left_ns && ~ocd_ktap_left_r) resume_wait_ns = 'b1;
+    else if (oclk_center_write_resume_ns && ~oclk_center_write_resume_r) 
+      resume_wait_ns = POC_SAMPLE_CLEAR_WAIT[RESUME_WAIT_WIDTH-1:0];
+    else if (~oclk_center_write_resume_ns && oclk_center_write_resume_r) resume_wait_ns = 'd15;
     else if (cmplx_samples_done_ns & ~cmplx_samples_done_r || 
              complex_oclkdelay_calib_start & reset_scan ||
-             poc_backup_r & ocd2stg3_inc_r) resume_wait_ns = 5'd31;
-    else if (|resume_wait_r) resume_wait_ns = resume_wait_r - 5'd1;
+             poc_backup_r & ocd2stg3_inc_r) resume_wait_ns = 'd31;
+    else if (|resume_wait_r) resume_wait_ns = resume_wait_r - 'd1;
     
   end // always @ begin
   

@@ -1580,10 +1580,10 @@ endgenerate
    if((WRLVL == "ON") && (OCAL_EN == "ON")) begin: oclk_calib
 
      localparam SAMPCNTRWIDTH = 17;
-     localparam SAMPLES = (SIM_CAL_OPTION=="NONE") ? 2048 : 4;
+     localparam SAMPLES = (SIM_CAL_OPTION=="NONE") ? 512 : 4; //MG from 2048
 	 localparam TAPCNTRWIDTH = clogb2(TAPSPERKCLK);
      localparam MMCM_SAMP_WAIT = (SIM_CAL_OPTION=="NONE") ? 256 : 10;
-	 localparam OCAL_SIMPLE_SCAN_SAMPS = (SIM_CAL_OPTION=="NONE") ? 2048 : 1;
+	 localparam OCAL_SIMPLE_SCAN_SAMPS = (SIM_CAL_OPTION=="NONE") ? 512 : 1; //MG from 2048
      localparam POC_PCT_SAMPS_SOLID = 80;
      localparam SCAN_PCT_SAMPS_SOLID = 95;
 

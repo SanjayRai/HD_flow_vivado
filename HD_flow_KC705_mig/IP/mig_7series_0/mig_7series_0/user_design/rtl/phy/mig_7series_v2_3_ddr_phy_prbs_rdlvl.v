@@ -151,10 +151,16 @@ module mig_7series_v2_3_ddr_phy_prbs_rdlvl #
   localparam [5:0] FINE_CALC_TAPS            = 6'h12;  //setup fine_delay_incdec_pb for better window size
   localparam [5:0] FINE_CALC_TAPS_WAIT       = 6'h13;  //wait for ROM value for dec cnt
     
-  localparam [11:0] NUM_SAMPLES_CNT  = (SIM_CAL_OPTION == "NONE") ? 'd50 : 12'h001;  
+  localparam [11:0] NUM_SAMPLES_CNT  = (SIM_CAL_OPTION == "NONE") ? 'd12 : 12'h001; //MG from 50  
   localparam [11:0] NUM_SAMPLES_CNT1 = (SIM_CAL_OPTION == "NONE") ? 'd20 : 12'h001;  
   localparam [11:0] NUM_SAMPLES_CNT2 = (SIM_CAL_OPTION == "NONE") ? 'd10 : 12'h001;   
- 
+
+  //minimum valid window for centering
+  localparam MIN_WIN = 8;
+  localparam [MIN_WIN-1:0] MATCH_ALL_ONE = {MIN_WIN{1'b1}};
+  localparam [MIN_WIN-1:0] MIN_PASS = {MIN_WIN{1'b0}};             //8'b00000000
+  localparam [MIN_WIN-1:0] MIN_LEFT = {1'b1,{{MIN_WIN-1}{1'b0}}};  //8'b10000000
+
   wire [DQS_CNT_WIDTH+2:0]prbs_dqs_cnt_timing;
   reg [DQS_CNT_WIDTH+2:0] prbs_dqs_cnt_timing_r;
   reg [DQS_CNT_WIDTH:0]   prbs_dqs_cnt_r;
@@ -267,14 +273,15 @@ module mig_7series_v2_3_ddr_phy_prbs_rdlvl #
    
   //reg [6*DQS_WIDTH*RANKS-1:0] dbg_prbs_first_edge_taps;
   //reg [6*DQS_WIDTH*RANKS-1:0] dbg_prbs_second_edge_taps;
-
+  
    //**************************************************************************
    // signals for per-bit algorithm of fine_delay calculations
    //**************************************************************************
   reg [6*DRAM_WIDTH-1:0] left_edge_pb;           //left edge value per bit
   reg [6*DRAM_WIDTH-1:0] right_edge_pb;          //right edge value per bit
-  reg [5*DRAM_WIDTH-1:0] match_flag_pb;          //5 consecutive match flag per bit
-  reg [4:0]              match_flag_and;         //5 consecute match flag of all bits (1: all bit fail)
+  reg [MIN_WIN*DRAM_WIDTH-1:0] match_flag_pb;    //5 consecutive match flag per bit
+  reg [MIN_WIN-1:0]            match_flag_and;   //5 consecute match flag of all bits (1: all bit fail)
+  reg [MIN_WIN-1:0]            match_flag_or;    //5 consecute match flag of all bits (1: any  bit fail)
   reg [DRAM_WIDTH-1:0]   left_edge_found_pb;     //left_edge found per bit - use for loss calculation 
   reg [DRAM_WIDTH-1:0]   left_edge_updated;      //left edge was updated for this PI tap - used for largest left edge /ref bit update
   reg [DRAM_WIDTH-1:0]   right_edge_found_pb;    //right_edge found per bit - use for gail calulation and smallest right edge update 
@@ -295,6 +302,7 @@ module mig_7series_v2_3_ddr_phy_prbs_rdlvl #
   reg [DRAM_WIDTH-1:0]   compare_err_pb;         //compare error per bit
   reg [DRAM_WIDTH-1:0]   compare_err_pb_latch_r; //sticky compare error per bit used for left/right edge
   reg                    compare_err_pb_and;     //indicate all bit fail
+  reg                    compare_err_pb_or;      //indicate any bit fail
   reg                    fine_inc_stage;         //fine_inc_stage (1: increment all except ref_bit, 0: only inc for gain bit)
   reg [1:0]              stage_cnt;              //stage cnt (0,1: fine delay inc stage, 2: fine delay dec stage)
   wire                   fine_calib;             //turn on/off fine delay calibration
@@ -305,6 +313,9 @@ module mig_7series_v2_3_ddr_phy_prbs_rdlvl #
 
   wire                   center_comp;
   wire                   pi_adj;
+
+  reg                    no_err_win_detected;
+  reg                    no_err_win_detected_latch;
 
    //**************************************************************************
    // DQS count to hard PHY during write calibration using Phaser_OUT Stage2
@@ -385,7 +396,7 @@ module mig_7series_v2_3_ddr_phy_prbs_rdlvl #
    assign dbg_prbs_rdlvl[229] = fine_delay_sel;
    assign dbg_prbs_rdlvl[230+:8] = compare_err_pb_latch_r;
    assign dbg_prbs_rdlvl[238+:6] = fine_pi_dec_cnt;
-   assign dbg_prbs_rdlvl[244+:5] = match_flag_and ;
+   assign dbg_prbs_rdlvl[244+:5] = match_flag_and[4:0]; 
    assign dbg_prbs_rdlvl[249+:2] =stage_cnt  ;
    assign dbg_prbs_rdlvl[251] =  fine_inc_stage  ;
    assign dbg_prbs_rdlvl[252] =  compare_err_pb_and  ;
@@ -928,15 +939,6 @@ endgenerate
     end  //if
   endgenerate
 
-  //checking all bit has error  
-  always @ (posedge clk) begin
-    if(rst || new_cnt_dqs_r) begin
-      compare_err_pb_and <= #TCQ 1'b0;
-    end else begin
-      compare_err_pb_and <= #TCQ &compare_err_pb;
-    end
-  end
-
   //generate stick error bit - left/right edge 
   generate 
   genvar pb_r;
@@ -950,6 +952,18 @@ endgenerate
       end
     end
   endgenerate
+
+  //checking all/any bit has error  
+  always @ (posedge clk) begin
+    if(rst | (prbs_state_r == FINE_PI_INC) | (prbs_state_r == FINE_PI_DEC) | 
+      (~cnt_wait_state && ((prbs_state_r == FINE_PI_INC_WAIT)|(prbs_state_r == FINE_PI_DEC_WAIT)))) begin 
+	  compare_err_pb_and <= #TCQ 1'b0;
+	  compare_err_pb_or  <= #TCQ 1'b0;
+	end else begin
+          compare_err_pb_and <= #TCQ &compare_err_pb? 1'b1: compare_err_pb_and;
+	  compare_err_pb_or  <= #TCQ |compare_err_pb? 1'b1: compare_err_pb_or; 
+	end
+  end
 
   //in stage 0, if left edge found, update ref_bit (one hot)
   always @ (posedge clk) begin
@@ -988,7 +1002,7 @@ endgenerate
   for(eg=0; eg<DRAM_WIDTH; eg = eg+1) begin
     always @ (posedge clk) begin
       if(rst | (prbs_state_r == PRBS_NEW_DQS_WAIT)) begin
-        match_flag_pb[eg*5+:5] <= #TCQ 5'h1f;
+        match_flag_pb[eg*MIN_WIN+:MIN_WIN] <= #TCQ MATCH_ALL_ONE;  //8'hff
         left_edge_pb[eg*6+:6] <= #TCQ 'b0;
         right_edge_pb[eg*6+:6] <= #TCQ 6'h3f;
         left_edge_found_pb[eg] <= #TCQ 1'b0;
@@ -998,17 +1012,17 @@ endgenerate
         left_edge_updated[eg]  <= #TCQ 'b0;
       end else begin
         if((prbs_state_r == FINE_PAT_COMPARE_PER_BIT) && (num_samples_done_r || compare_err_pb_and)) begin
-            //left edge is updated when match flag becomes 100000 (1 fail , 5 success)
-            if(match_flag_pb[eg*5+:5]==5'b10000 && compare_err_pb_latch_r[eg]==0) begin 
-              left_edge_pb[eg*6+:6] <= #TCQ prbs_dqs_tap_cnt_r-4;
+            //left edge is updated when match flag becomes 10000000 (1 fail ,8 success)
+            if(match_flag_pb[eg*MIN_WIN+:MIN_WIN]== MIN_LEFT && compare_err_pb_latch_r[eg]==0) begin 
+              left_edge_pb[eg*6+:6] <= #TCQ prbs_dqs_tap_cnt_r- (MIN_WIN-1);
               left_edge_found_pb[eg] <= #TCQ 1'b1;  //used for update largest_left_edge
               left_edge_updated[eg] <= #TCQ 1'b1;
               //check the loss of bit - update only for left edge found
               if(~left_edge_found_pb[eg]) 
-                left_loss_pb[eg*6+:6] <= #TCQ (left_edge_ref > prbs_dqs_tap_cnt_r - 4)? 'd0
-                                 : prbs_dqs_tap_cnt_r-4-left_edge_ref;
-            //right edge is updated when match flag becomes 000001 (5 success, 1 fail)
-            end else if (match_flag_pb[eg*5+:5]==5'b00000 && compare_err_pb_latch_r[eg]) begin 
+                left_loss_pb[eg*6+:6] <= #TCQ (left_edge_ref > prbs_dqs_tap_cnt_r -(MIN_WIN-1))? 'd0
+                                 : prbs_dqs_tap_cnt_r-(MIN_WIN-1)-left_edge_ref;
+            //right edge is updated when match flag becomes 000000001 (8 success, 1 fail)
+            end else if (match_flag_pb[eg*MIN_WIN+:MIN_WIN]== MIN_PASS  && compare_err_pb_latch_r[eg]) begin 
                right_edge_pb[eg*6+:6] <= #TCQ prbs_dqs_tap_cnt_r-1;
                right_edge_found_pb[eg] <= #TCQ 1'b1;
                //check the gain of bit - update only for right edge found
@@ -1025,13 +1039,14 @@ endgenerate
                                    (right_edge_ref - right_edge_pb[eg*6+:6]) : 0;
            end
            //update match flag - shift and update
-           match_flag_pb[eg*5+:5] <= #TCQ {match_flag_pb[(eg*5)+:4],compare_err_pb_latch_r[eg]};
+           match_flag_pb[eg*MIN_WIN+:MIN_WIN] <= #TCQ {match_flag_pb[(eg*MIN_WIN)+:(MIN_WIN-1)],compare_err_pb_latch_r[eg]};
          end else if (prbs_state_r == FINE_PI_DEC) begin
            left_edge_found_pb[eg] <= #TCQ 1'b0;
            right_edge_found_pb[eg] <= #TCQ 1'b0;
            left_loss_pb[eg*6+:6] <= #TCQ 'b0;
            right_gain_pb[eg*6+:6] <= #TCQ 'b0; 
-           match_flag_pb[eg*5+:5] <= #TCQ 5'h1f;  //new fix
+           match_flag_pb[eg*MIN_WIN+:MIN_WIN] <= #TCQ MATCH_ALL_ONE ;  //new fix
+           left_edge_updated[eg] <= #TCQ 'b0;   //used only for update largest ref_bit and largest_left_edge
          end else if (prbs_state_r == FINE_PI_INC) begin
            left_edge_updated[eg] <= #TCQ 'b0;   //used only for update largest ref_bit and largest_left_edge
          end
@@ -1087,7 +1102,10 @@ endgenerate
       reset_rd_addr         <= #TCQ 'b0;
       read_pause            <= #TCQ 'b0;
       fine_pi_dec_cnt       <= #TCQ 'b0; 
-      match_flag_and        <= #TCQ 5'h1f;
+      match_flag_and        <= #TCQ MATCH_ALL_ONE;
+      match_flag_or         <= #TCQ MATCH_ALL_ONE;
+      no_err_win_detected   <= #TCQ 1'b0; 
+      no_err_win_detected_latch   <= #TCQ 1'b0; 
       stage_cnt             <= #TCQ 2'b00;
       right_edge_found      <= #TCQ 1'b0;
       largest_left_edge     <= #TCQ 6'b000000;
@@ -1123,7 +1141,10 @@ endgenerate
           prbs_prech_req_r    <= #TCQ 1'b0;
           //fine_inc_stage      <= #TCQ 1'b1;
           stage_cnt           <= #TCQ 2'b0;
-          match_flag_and        <= #TCQ 5'h1f;
+          match_flag_and        <= #TCQ MATCH_ALL_ONE;
+          match_flag_or         <= #TCQ MATCH_ALL_ONE;
+          no_err_win_detected   <= #TCQ 1'b0;
+          no_err_win_detected_latch   <= #TCQ 1'b0;
           if (cnt_wait_state) begin
             new_cnt_dqs_r <= #TCQ 1'b0;
             prbs_state_r  <= #TCQ fine_calib? FINE_PI_DEC:PRBS_PAT_COMPARE;
@@ -1344,10 +1365,10 @@ endgenerate
             end
           end
         end
-	    //wait for center compensation
+       //wait for center compensation
         PRBS_CALC_TAPS_WAIT:
         begin
-	      prbs_state_r <= #TCQ PRBS_CALC_TAPS;
+          prbs_state_r <= #TCQ PRBS_CALC_TAPS;
         end
         //if it is fine_inc stage (first/second stage): dec to 0
         //if it is fine_dec stage (third stage): dec to center
@@ -1379,12 +1400,19 @@ endgenerate
         end
           
         FINE_PI_INC: begin
-          if(|left_edge_updated) largest_left_edge <= #TCQ prbs_dqs_tap_cnt_r-4;
-          if(|right_edge_found_pb && ~right_edge_found) begin
+          //prevent left edge update after valid window found
+          if(|left_edge_updated && ~no_err_win_detected_latch) largest_left_edge <= #TCQ prbs_dqs_tap_cnt_r- (MIN_WIN-1); 
+          
+	  if (no_err_win_detected) begin
+          //ignore previous right edge updated if valid window shown after
+            right_edge_found <= #TCQ 'b0; 
+          end else if(|right_edge_found_pb && ~right_edge_found) begin
             smallest_right_edge <= #TCQ prbs_dqs_tap_cnt_r -1 ;
             right_edge_found <= #TCQ 'b1;
-          end
-          //left_edge_found_pb <= #TCQ {DRAM_WIDTH{1'b0}};
+          end 
+          //until minimum window is detected, left edge can be updated
+          //once minimum window is detected, no further left edge update will be done
+          if(no_err_win_detected) no_err_win_detected_latch <= #TCQ 1'b1;
           prbs_state_r <= #TCQ FINE_PI_INC_WAIT;
           if(~prbs_dqs_tap_limit_r) begin
             prbs_tap_en_r    <= #TCQ 1'b1;
@@ -1404,11 +1432,19 @@ endgenerate
         FINE_PAT_COMPARE_PER_BIT: begin
           if(num_samples_done_r || compare_err_pb_and) begin
             //update and_flag - shift and add
-            match_flag_and <= #TCQ {match_flag_and[3:0],compare_err_pb_and};
-            //if it is consecutive 5 passing taps followed by fail or tap limit (finish the search)
+            match_flag_and <= #TCQ {match_flag_and[MIN_WIN-2:0],compare_err_pb_and};
+            match_flag_or  <= #TCQ {match_flag_or[MIN_WIN-2:0],compare_err_pb_or};
+
+            //to solve false left/right edge detection
+            if({match_flag_or[MIN_WIN-2:0],compare_err_pb_or} == MIN_PASS) begin  //if it detect minimum window
+              no_err_win_detected <= #TCQ 1'b1;
+            end else begin
+              no_err_win_detected <= #TCQ 1'b0;
+            end
+            //if it is consecutive 8 passing taps followed by fail or tap limit (finish the search)
             //don't go to fine_FINE_CALC_TAPS to prevent to skip whole stage
             //Or if all right edge are found
-            if((match_flag_and == 5'b00000 && compare_err_pb_and && (prbs_dqs_tap_cnt_r > 5)) || prbs_dqs_tap_limit_r || (&right_edge_found_pb)) begin 
+            if((match_flag_and == MIN_PASS && compare_err_pb_and && (prbs_dqs_tap_cnt_r > MIN_WIN )) || prbs_dqs_tap_limit_r || (&right_edge_found_pb)) begin 
               prbs_state_r <= #TCQ FINE_CALC_TAPS; 
               //if all right edge are alined (all right edge found at the same time), update smallest right edge in here
               //doesnt need to set right_edge_found to 1 since it is not used after this stage
@@ -1426,7 +1462,10 @@ endgenerate
          if(num_samples_done_ind || num_samples_done_r) begin
           num_samples_done_ind <= #TCQ 'b0; //indicate num_samples_done_r is set 
           right_edge_found <= #TCQ 1'b0;  //reset right edge found
-          match_flag_and <= #TCQ 5'h1f;   //reset match flag for all bits
+          match_flag_and <= #TCQ MATCH_ALL_ONE;   //reset match flag for all bits
+          match_flag_or  <= #TCQ MATCH_ALL_ONE;   //reset match flag for all bits
+          no_err_win_detected <= #TCQ 1'b0;
+          no_err_win_detected_latch <= #TCQ 1'b0;
           prbs_state_r <= #TCQ FINE_CALC_TAPS_WAIT;
           end
         end

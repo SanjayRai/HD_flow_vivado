@@ -50,7 +50,7 @@ lock_design -level routing U_PR_B
 opt_design -verbose
 place_design -verbose
 phys_opt_design -verbose
-route_design -verbose -effort_level high
+route_design -verbose
 #report_timing -delay_type min_max -path_type full_clock_expanded -max_paths 100 -sort_by group -significant_digits 3 -input_pins -name {results_par_1} -file FMC_DVIDP_CONFIG_test.timing_rpt
 #report_timing_summary -delay_type min_max -path_type full_clock_expanded -max_paths 100 -significant_digits 3 -input_pins -file FMC_DVIDP_CONFIG_test.timing_summary_rpt
 write_bitstream ./FMC_DVIDP_CONFIG_test.bit

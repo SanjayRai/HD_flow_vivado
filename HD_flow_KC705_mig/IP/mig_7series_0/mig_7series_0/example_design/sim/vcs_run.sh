@@ -73,7 +73,7 @@
 #libraries path#
 
 #Compile all modules#
-vlogan -sverilog ../../../sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v >> vcs_sim.log
+vlogan -sverilog ../../../sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.v > vcs_sim.log
 vlogan -sverilog ../../../sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.v >> vcs_sim.log
 vlogan -sverilog ../../../sources_1/imports/rtl/*.v >> vcs_sim.log
 vlogan -sverilog ../../../sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/clocking/*.v >> vcs_sim.log
@@ -94,7 +94,7 @@ vlogan -sverilog wiredly.v >> vcs_sim.log
 vlogan -sverilog sim_tb_top.v >> vcs_sim.log
 
 #Pass the parameters for memory model parameter file#
-vlogan -Xcheck_p1800_2009=char -sverilog +define+x1Gb +define+sg125 +define+x8 ddr3_model.v >> vcs_sim.log 
+vlogan -Xcheck_p1800_2009=char -sverilog +define+x1Gb +define+sg125 +define+x8 ddr3_model.sv >> vcs_sim.log 
 
 #Simulate the design with sim_tb_top as the top module
 vcs -R -debug_pp -lca sim_tb_top glbl >> vcs_sim.log

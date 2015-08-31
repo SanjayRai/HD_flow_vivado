@@ -124,6 +124,7 @@ module mig_7series_v2_3_poc_top #
   wire [SAMPCNTRWIDTH:0] samps_hi_held;		// From u_poc_tap_base of mig_7series_v2_3_poc_tap_base.v
   wire [SAMPCNTRWIDTH:0] samps_solid_thresh;	// From u_poc_cc of mig_7series_v2_3_poc_cc.v
   wire [TAPCNTRWIDTH-1:0] tap;			// From u_poc_tap_base of mig_7series_v2_3_poc_tap_base.v
+  wire                   run_too_small;
   // End of automatics
 
   output psen;
@@ -151,6 +152,7 @@ module mig_7series_v2_3_poc_top #
      .run_polarity			(run_polarity),
      .samps_hi_held			(samps_hi_held[SAMPCNTRWIDTH:0]),
      .tap				(tap[TAPCNTRWIDTH-1:0]),
+     .run_too_small                     (run_too_small),
      // Inputs
      .clk				(clk),
      .pd_out				(pd_out),
@@ -176,6 +178,7 @@ module mig_7series_v2_3_poc_top #
      // Inputs
      .clk				(clk),
      .ktap_at_left_edge			(ktap_at_left_edge),
+     .run_too_small                     (run_too_small),
      .ktap_at_right_edge		(ktap_at_right_edge),
      .mmcm_edge_detect_rdy		(mmcm_edge_detect_rdy),
      .ninety_offsets			(ninety_offsets[1:0]),

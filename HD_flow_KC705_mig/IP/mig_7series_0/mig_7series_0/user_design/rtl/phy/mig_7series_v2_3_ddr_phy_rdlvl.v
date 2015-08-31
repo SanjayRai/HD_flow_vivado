@@ -626,7 +626,7 @@ module mig_7series_v2_3_ddr_phy_rdlvl #
   
   generate
     always @(posedge clk)
-      if (rst) begin
+      if (rst || (rdlvl_stg1_start && ~rdlvl_stg1_start_r)) begin
         dbg_cpt_first_edge_taps  <= #TCQ 'b0;
         dbg_cpt_second_edge_taps <= #TCQ 'b0;
       end else if ((SIM_CAL_OPTION == "FAST_CAL") & (cal1_state_r1 == CAL1_CALC_IDEL)) begin
@@ -2672,7 +2672,7 @@ module mig_7series_v2_3_ddr_phy_rdlvl #
       cnt_idel_dec_cpt_r    <= #TCQ 6'bxxxxxx;
       found_first_edge_r    <= #TCQ 1'b0;
       found_second_edge_r   <= #TCQ 1'b0;
-      right_edge_taps_r     <= #TCQ 6'bxxxxxx;
+      right_edge_taps_r     <= #TCQ 6'b000000;
       first_edge_taps_r     <= #TCQ 6'bxxxxxx;
       new_cnt_cpt_r         <= #TCQ 1'b0;
       rdlvl_stg1_done       <= #TCQ 1'b0;
@@ -3205,6 +3205,7 @@ module mig_7series_v2_3_ddr_phy_rdlvl #
           found_second_edge_r <= #TCQ 1'b0;
           first_edge_taps_r <= #TCQ 'd0;
           second_edge_taps_r <= #TCQ 'd0;
+          right_edge_taps_r    <= #TCQ 'd0;
           if ((SIM_CAL_OPTION == "FAST_CAL") ||
               (cal1_cnt_cpt_r >= DQS_WIDTH-1)) begin
             if (mpr_rdlvl_done_r) begin

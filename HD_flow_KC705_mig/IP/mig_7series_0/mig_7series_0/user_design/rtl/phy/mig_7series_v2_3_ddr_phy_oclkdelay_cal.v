@@ -404,6 +404,7 @@ module mig_7series_v2_3_ddr_phy_oclkdelay_cal #
      .match				(match[1:0]),
      .ocal_num_samples_inc		(ocal_num_samples_inc),
      .phy_rddata_en_1			(phy_rddata_en_1),
+     .phy_rddata_en_2			(phy_rddata_en_2),
      .reset_scan			(reset_scan),
      .rst				(rst),
      .taps_set				(taps_set));
@@ -474,6 +475,7 @@ module mig_7series_v2_3_ddr_phy_oclkdelay_cal #
      // Parameters
      .DQS_CNT_WIDTH			(DQS_CNT_WIDTH),
      .DQS_WIDTH				(DQS_WIDTH),
+     .SAMPLES				(SAMPLES),
      .TCQ				(TCQ),
      .nCK_PER_CLK                       (nCK_PER_CLK))
   u_ocd_po_cntlr

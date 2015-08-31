@@ -117,7 +117,8 @@ module mig_7series_v2_3_ddr_phy_ocd_samp #
   samp_done, oclk_calib_resume, rd_victim_sel, samp_result,
   // Inputs
   complex_oclkdelay_calib_start, clk, rst, reset_scan,
-  ocal_num_samples_inc, match, phy_rddata_en_1, taps_set
+  ocal_num_samples_inc, match, phy_rddata_en_1, taps_set,
+  phy_rddata_en_2
   );
 
   function integer clogb2 (input integer size); // ceiling logb2
@@ -143,7 +144,9 @@ module mig_7series_v2_3_ddr_phy_ocd_samp #
 
   // Remember SAMPLES is natural number counting.  One corresponds to one sample.
   localparam integer SIMP_SAMPS_SOLID_THRESH = OCAL_SIMPLE_SCAN_SAMPS * SCAN_PCT_SAMPS_SOLID * 0.01;
+  localparam integer SIMP_SAMPS_HALF_THRESH = SIMP_SAMPS_SOLID_THRESH/2;
   localparam integer CMPLX_SAMPS_SOLID_THRESH = CMPLX_SAMPS * SCAN_PCT_SAMPS_SOLID * 0.01;
+  localparam integer CMPLX_SAMPS_HALF_THRESH = CMPLX_SAMPS_SOLID_THRESH/2;
 
   input complex_oclkdelay_calib_start;
   
@@ -175,6 +178,9 @@ module mig_7series_v2_3_ddr_phy_ocd_samp #
   output samp_done;
   assign samp_done = samp_done_r;
 
+  input phy_rddata_en_2;
+  wire samp_valid = samp_done_r && phy_rddata_en_2;
+
   reg [1:0] agg_samp_ns, agg_samp_r;
   always @(posedge clk) agg_samp_r <= #TCQ agg_samp_ns;
 
@@ -202,13 +208,35 @@ module mig_7series_v2_3_ddr_phy_ocd_samp #
   always @(posedge clk) zero_r <= #TCQ zero_ns;
   always @(posedge clk) oneeighty_r <= #TCQ oneeighty_ns;
 
+  wire [SAMP_CNT_WIDTH-1:0] samp_thresh = (complex_oclkdelay_calib_start 
+                                            ? CMPLX_SAMPS_SOLID_THRESH[SAMP_CNT_WIDTH-1:0]
+                                            : SIMP_SAMPS_SOLID_THRESH[SAMP_CNT_WIDTH-1:0]);
+
+  wire [SAMP_CNT_WIDTH-1:0] samp_half_thresh = (complex_oclkdelay_calib_start 
+                                                 ? CMPLX_SAMPS_HALF_THRESH[SAMP_CNT_WIDTH-1:0]
+                                                 : SIMP_SAMPS_HALF_THRESH[SAMP_CNT_WIDTH-1:0]);
+
+  wire zero_ge_thresh = zero_r >= samp_thresh;
+  wire zero_le_half_thresh =  zero_r <= samp_half_thresh;
+  wire oneeighty_ge_thresh = oneeighty_r >= samp_thresh;
+  wire oneeighty_le_half_thresh = oneeighty_r <= samp_half_thresh;
+  
+  reg [1:0] samp_result_ns, samp_result_r;
+  always @(posedge clk) samp_result_r <= #TCQ samp_result_ns;
+  always @(*) 
+    if (rst) samp_result_ns = 'b0;
+    else begin
+      samp_result_ns = samp_result_r;
+      if (samp_valid) begin
+	if (~samp_result_r[0] && zero_ge_thresh) samp_result_ns[0] = 'b1;
+        if (samp_result_r[0] && zero_le_half_thresh) samp_result_ns[0] = 'b0;
+	if (~samp_result_r[1] && oneeighty_ge_thresh) samp_result_ns[1] = 'b1;
+        if (samp_result_r[1] && oneeighty_le_half_thresh) samp_result_ns[1] = 'b0;
+      end
+    end
+  
   output [1:0] samp_result;
-  assign samp_result[0] = zero_r >=  (complex_oclkdelay_calib_start 
-                                      ? CMPLX_SAMPS_SOLID_THRESH[SAMP_CNT_WIDTH-1:0]
-                                    : SIMP_SAMPS_SOLID_THRESH[SAMP_CNT_WIDTH-1:0]); 
-  assign samp_result[1] = oneeighty_r >= (complex_oclkdelay_calib_start 
-                                         ? CMPLX_SAMPS_SOLID_THRESH[SAMP_CNT_WIDTH-1:0]
-                                         : SIMP_SAMPS_SOLID_THRESH[SAMP_CNT_WIDTH-1:0]);
+  assign samp_result = samp_result_ns;
 
   reg [0:0] sm_ns, sm_r;
   always @(posedge clk) sm_r <= #TCQ sm_ns;
@@ -248,11 +276,12 @@ module mig_7series_v2_3_ddr_phy_ocd_samp #
         /*AL("READY")*/1'd0:begin
 	  agg_samp_ns = NULL;
 	  data_cnt_ns = data_cnt;
-	  oneeighty_ns = {SAMP_CNT_WIDTH{1'b0}};
+	  oneeighty_ns = 'b0;
+	  zero_ns = 'b0;
 	  rd_victim_sel_ns = 3'b0;
 	  samps_ns = complex_oclkdelay_calib_start ? CMPLX_SAMPS[SAMP_CNT_WIDTH-1:0]
                                                    : OCAL_SIMPLE_SCAN_SAMPS[SAMP_CNT_WIDTH-1:0];
-	  zero_ns = {SAMP_CNT_WIDTH{1'b0}};
+	 
 	  
 	  if (taps_set) begin
 	    samp_done_ns = 1'b0;

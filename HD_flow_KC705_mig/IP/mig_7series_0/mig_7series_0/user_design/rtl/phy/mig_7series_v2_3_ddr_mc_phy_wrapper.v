@@ -588,6 +588,8 @@ module mig_7series_v2_3_ddr_mc_phy_wrapper #
   reg  [29:0]                       fine_delay_mod;    //3 bit per DQ 
   reg                               fine_delay_sel_r;  //timing adj with fine_delay_incdec_pb
 
+  wire iddr_rst_i;
+  
   (* use_dsp48 = "no" *) wire [DQS_CNT_WIDTH:0]             byte_sel_cnt_w1; 
   
   // Always read from input data FIFOs when not empty
@@ -599,7 +601,7 @@ module mig_7series_v2_3_ddr_mc_phy_wrapper #
   
   // Idle powerdown when there are no pending reads in the MC
   assign data_io_idle_pwrdwn = DATA_IO_IDLE_PWRDWN == "ON" ? idle : 1'b0;
-  
+  assign iddr_rst_i = iddr_rst;
   //***************************************************************************
   // Auxiliary output steering
   //***************************************************************************
@@ -1273,7 +1275,7 @@ module mig_7series_v2_3_ddr_mc_phy_wrapper #
 	      u_iddr_edge_det
 	      (
 	        .clk         (clk),
-		    .iddr_rst         (iddr_rst),
+		    .iddr_rst         (iddr_rst_i),
 		    .kclk        (in_dqs_lpbk_to_iddr[p]),
 		    .mmcm_ps_clk (mmcm_ps_clk),
 		    .pd_out      (pd_out_pre[p])
@@ -1347,7 +1349,7 @@ module mig_7series_v2_3_ddr_mc_phy_wrapper #
 	    u_iddr_edge_det
 	      (
 	       .clk         (clk),
-               .iddr_rst    (iddr_rst),
+               .iddr_rst    (iddr_rst_i),
 	       .kclk        (in_dqs_lpbk_to_iddr[p]),
                .mmcm_ps_clk (mmcm_ps_clk),
                .pd_out      (pd_out_pre[p])

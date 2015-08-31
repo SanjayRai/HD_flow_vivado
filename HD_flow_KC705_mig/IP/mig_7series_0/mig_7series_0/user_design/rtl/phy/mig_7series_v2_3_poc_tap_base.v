@@ -105,7 +105,7 @@ module mig_7series_v2_3_poc_tap_base #
    parameter TAPSPERKCLK                = 112)
   (/*AUTOARG*/
   // Outputs
-  psincdec, psen, run, run_end, run_polarity, samps_hi_held, tap,
+  psincdec, psen, run, run_end, run_polarity, samps_hi_held, tap, run_too_small,
   // Inputs
   pd_out, clk, samples, samps_solid_thresh, psdone, rst,
   poc_sample_pd
@@ -151,6 +151,11 @@ module mig_7series_v2_3_poc_tap_base #
   output run_end;
   reg run_end_int;
   assign run_end = run_end_int;
+
+  output run_too_small;
+  reg run_too_small_r;
+  always @ (posedge clk) run_too_small_r <= #TCQ run_end & (run <  TAPSPERKCLK/4);
+  assign run_too_small = run_too_small_r;
   
   reg run_polarity_r;
   reg run_polarity_ns;
